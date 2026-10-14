@@ -59,7 +59,7 @@ menjalankan SQL; Super Admin cukup melihat **Status Sistem** (`/admin/status`) d
 | **Authentication → Providers / URL Configuration** | Google OAuth, Site URL, redirect | Lihat `docs/google-oauth.md` |
 | **Storage** | Bucket file | Lihat bagian 6 |
 | **Logs** | Log API, Auth, Postgres | Untuk menelusuri error |
-| **Database → Backups** | Status backup | Tergantung paket; lihat panduan backup (Tahap 7) |
+| **Database → Backups** | Status backup | Tergantung paket; lihat `PANDUAN_BACKUP_PEMULIHAN.md` |
 | **SQL Editor** | Prosedur terdokumentasi & kueri bagian 9 | Jangan menjalankan SQL dari sumber tidak jelas |
 | **Project Settings → API** | URL & kunci untuk environment hosting | Service role key **rahasia** |
 
@@ -230,7 +230,7 @@ Menerapkan migrasi ke produksi:
 
 1. Pastikan CI hijau di GitHub (job *database* menjalankan semua migrasi dan uji RLS).
 2. Di komputer petugas: `npm ci`, lalu `npm run test:db` (butuh PostgreSQL lokal).
-3. **Buat/konfirmasi backup terbaru** (panduan backup, Tahap 7). Jangan lanjut tanpa backup.
+3. **Buat/konfirmasi backup terbaru** (`PANDUAN_BACKUP_PEMULIHAN.md`). Jangan lanjut tanpa backup.
 4. `npx supabase login`, `npx supabase link --project-ref <project-ref>`.
 5. `npx supabase db push --dry-run` untuk melihat migrasi yang akan diterapkan, lalu
    `npx supabase db push`.
@@ -347,7 +347,7 @@ Super Admin membuka `/admin/log` (saring jenis data). Petugas teknis dapat memak
 
 ### 10.7 Membersihkan file gambar yatim (berkala, mis. per semester)
 File gambar yang tidak lagi dipakai (berita/foto dihapus) tetap ada di bucket.
-1. Lakukan hanya setelah backup Storage (panduan backup, Tahap 7).
+1. Lakukan hanya setelah backup Storage (`PANDUAN_BACKUP_PEMULIHAN.md`).
 2. Untuk bucket `site-media`, cari file yang tidak dirujuk:
    ```sql
    select o.name, o.created_at
@@ -383,7 +383,7 @@ Setelah rotasi, buka `/admin/status` untuk memastikan semua konfigurasi "OK".
 | Mingguan | Error di log | Supabase → Logs |
 | Bulanan | Pemakaian database & storage terhadap kuota paket | Supabase → Project → Usage |
 | Bulanan | Daftar anggota dasbor Supabase masih sesuai | Organization → Members |
-| Per semester | Uji pemulihan backup | Panduan backup (Tahap 7) |
+| Per semester | Uji pemulihan backup | `PANDUAN_BACKUP_PEMULIHAN.md` §6 |
 | Per semester | File yatim (10.7) | SQL Editor + Storage |
 
 ## 12. Larangan
@@ -396,7 +396,8 @@ Setelah rotasi, buka `/admin/status` untuk memastikan semua konfigurasi "OK".
 - Jangan menyalin data pribadi (email pelanggan, NIP/NIS, data siswa) ke spreadsheet
   pribadi, grup chat, atau layanan AI.
 - Jangan membagikan service role key, kata sandi database, atau akun dasbor Supabase.
-- Jangan memulihkan backup ke database produksi tanpa persetujuan tertulis sekolah.
+- Jangan memulihkan backup ke database produksi tanpa persetujuan tertulis sekolah
+  (skrip pemulihan menolak produksi kecuali `--produksi` + konfirmasi ketik ulang).
 
 ## 13. Data proyek produksi (diisi sekolah)
 

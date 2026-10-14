@@ -18,6 +18,8 @@ Semua panduan berbahasa Indonesia. Pilih sesuai peran Anda.
 
 | Dokumen | Isi |
 |---------|-----|
+| [PANDUAN_BACKUP_PEMULIHAN.md](PANDUAN_BACKUP_PEMULIHAN.md) | Backup database & file Storage terenkripsi, uji pemulihan, pemulihan darurat |
+| [AUDIT_KEAMANAN.md](AUDIT_KEAMANAN.md) | Temuan audit keamanan, kontrol otomatis, rekomendasi |
 | [PANDUAN_DATABASE.md](PANDUAN_DATABASE.md) | Supabase Dashboard, peta tabel & relasi, Storage, migrasi, kueri aman, prosedur standar, larangan |
 | [google-oauth.md](google-oauth.md) | Konfigurasi login Google |
 | [ARSITEKTUR.md](ARSITEKTUR.md) | Gambaran sistem, lapisan keamanan, modul, struktur folder |
@@ -29,6 +31,5 @@ Semua panduan berbahasa Indonesia. Pilih sesuai peran Anda.
 
 | Topik | Tahap |
 |-------|-------|
-| Backup & pemulihan (diuji), audit keamanan | Tahap 7 |
 | Deployment Hostinger & dokumentasi final | Tahap 8 |
 | Ruang Rasa | Menunggu keputusan kebijakan sekolah |

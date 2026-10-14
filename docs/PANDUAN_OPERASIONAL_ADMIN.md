@@ -85,7 +85,7 @@ Urutan disarankan (2–3 minggu sebelum hari pertama sekolah):
 4. **Petugas Administrasi**: ubah status SK yang sudah tidak berlaku menjadi **Arsip**.
 5. **Admin Website**: arsipkan berita/pengumuman kedaluwarsa; pastikan galeri kegiatan
    semester ini sudah memiliki konfirmasi izin foto.
-6. **Petugas teknis**: buat dan uji backup akhir tahun (panduan backup, Tahap 7).
+6. **Petugas teknis**: buat dan uji backup akhir tahun (`PANDUAN_BACKUP_PEMULIHAN.md`).
 
 ## 5. Serah terima petugas
 

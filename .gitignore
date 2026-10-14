@@ -42,3 +42,8 @@ next-env.d.ts
 
 # contoh env boleh di-commit (tanpa nilai rahasia)
 !.env.example
+
+# backup lokal (berisi data pribadi) — JANGAN di-commit
+/backups/
+*.dump
+*.tar.gz.enc

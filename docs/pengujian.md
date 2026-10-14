@@ -16,7 +16,7 @@ npm run build       # Build produksi
 membuat klaster sementara, memasang stub minimal skema `auth` Supabase
 (`supabase/tests/00_supabase_stub.sql`), menerapkan semua migrasi, menjalankan
 semua berkas `supabase/tests/1*.sql` (alur & RLS: `10_rls_dan_alur`, `11_dashboard`,
-`12_cms_berita`, `13_konten_situs`, `14_administrasi`, `15_operasional`), lalu menghapus klaster. Database Supabase
+`12_cms_berita`, `13_konten_situs`, `14_administrasi`, `15_operasional`, `16_hak_akses`), lalu menghapus klaster. Database Supabase
 sungguhan tidak disentuh.
 
 ## Pemetaan skenario wajib
@@ -86,4 +86,23 @@ kredensial/konfigurasi nyata tersedia (lihat daftar uji di dokumen terkait).
 | Pemeriksaan konfigurasi tidak pernah membocorkan nilai rahasia | Otomatis | unit `tests/config-status.test.ts` |
 | Pembersihan pratinjau impor > 7 hari, riwayat impor tetap | Otomatis | DB: "hanya pratinjau terbengkalai > 7 hari yang dibersihkan" |
 | Kueri baca-saja di `PANDUAN_DATABASE.md` §9 | Otomatis | `scripts/test-db.sh` mengambil blok SQL §9 & §10.7 langsung dari dokumen dan menjalankannya dalam transaksi `READ ONLY` |
+
+## Keamanan, backup, dan smoke test (Tahap 7)
+
+```bash
+npm run test:backup                      # backup terenkripsi → pulih ke DB lain → isi tiap tabel dibandingkan
+npm run smoke -- http://localhost:3000   # atau URL produksi setelah deploy
+```
+
+| Skenario | Status | Bukti |
+|----------|--------|-------|
+| Pengunjung hanya dapat membaca tabel konten publik yang disetujui; tanpa hak tulis | Otomatis | DB `16_hak_akses.sql` |
+| Semua fungsi `SECURITY DEFINER` menetapkan `search_path`; fungsi trigger tidak dapat dipanggil | Otomatis | DB `16_hak_akses.sql` |
+| Setiap server action memeriksa izin; service role hanya di file yang ditinjau | Otomatis | unit `tests/security-static.test.ts` |
+| CSP dengan nonce tanpa `unsafe-eval` di produksi | Otomatis + browser | unit `tests/csp.test.ts`; pemeriksaan Playwright: editor & server action berjalan, 0 pelanggaran CSP |
+| Backup → pulih menghasilkan isi tabel identik; sekuens & Unicode pulih | Otomatis | `scripts/test-backup-restore.sh` (CI) |
+| Pengaman produksi, frasa sandi salah, file rusak, backup tanpa enkripsi ditolak | Otomatis | `scripts/test-backup-restore.sh` |
+| Backup/pulih file Storage (subfolder, tidak menimpa, checksum, jalur aman) | Otomatis | unit `tests/storage-backup.test.ts` |
+| Backup/pulih pada proyek Supabase **sungguhan** | **Manual (belum dilakukan)** | `docs/PANDUAN_BACKUP_PEMULIHAN.md` §6 & §10 |
+| Halaman publik 200, halaman privat menolak tanpa login, header keamanan | Otomatis (per deploy) | `scripts/smoke-test.mjs` (34 pemeriksaan) |
 

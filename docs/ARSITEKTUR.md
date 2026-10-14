@@ -25,7 +25,8 @@ Resend (email konfirmasi & buletin)   ← webhook status ke /api/newsletter/webh
 
 ## Lapisan keamanan
 
-1. **Proxy** (`src/proxy.ts`): menolak area `/dashboard`, `/admin`, `/akun` tanpa login.
+1. **Proxy** (`src/proxy.ts`): menolak area `/dashboard`, `/admin`, `/akun` tanpa login dan
+   memasang Content-Security-Policy dengan nonce per permintaan (`src/lib/security/csp.ts`).
 2. **Data Access Layer** (`src/lib/auth/dal.ts`): setiap halaman privat & server action
    memeriksa status akun dan peran.
 3. **RLS di database**: pembatasan terakhir yang tetap berlaku walau ada bug di aplikasi.

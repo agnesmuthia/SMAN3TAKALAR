@@ -108,7 +108,7 @@ Semua migrasi bersifat **aditif** (menambah tabel/kolom), tidak menghapus data.
 | 5 ✅ | Peran Petugas Administrasi; tahun ajaran/semester (satu aktif); impor jadwal CSV/XLSX dengan pratinjau, laporan per baris, deteksi duplikat & bentrok, tanpa menimpa data lama, dan pembatalan per impor; arsip SK PDF (bucket privat, wajib konfirmasi pemeriksaan); perpustakaan digital. Lihat `docs/PANDUAN_ADMINISTRASI_SEKOLAH.md` | Parsing XLSX di server (dibatasi 2 MB/2.000 baris, hanya staf); SK & PDF tetap harus diperiksa manusia |
 | **RR** | **Ruang Rasa** (lihat bagian 9): menunggu keputusan kebijakan sekolah | Data sangat sensitif (anak, kekerasan); salah desain berdampak serius |
 | 6 ✅ | Panduan database (peta tabel, relasi, migrasi, kueri aman, prosedur standar) & operasional admin (rutinitas, checklist tahun ajaran, insiden); halaman Status Sistem & Log Aktivitas; log perubahan konten otomatis. Lihat `docs/README.md` | Prosedur manual tetap bergantung pada disiplin petugas; dicatat di buku log |
-| 7 | Backup/pemulihan, audit keamanan, pengujian akhir | Backup Supabase tergantung paket; harus diuji, bukan diasumsikan |
+| 7 ✅ | Skrip backup/pulih database & Storage terenkripsi dengan pengaman produksi dan uji otomatis; CSP dengan nonce; tes keamanan statis & hak akses database; smoke test pasca-deploy. Lihat `docs/PANDUAN_BACKUP_PEMULIHAN.md`, `docs/AUDIT_KEAMANAN.md` | Backup **belum diuji pada Supabase sungguhan**; uji pemulihan pertama wajib setelah proyek dibuat |
 | 8 | Dokumentasi final & deployment Hostinger | Butuh akses paket Hostinger yang mendukung Node.js |
 
 ## 9. Ruang Rasa: keputusan yang dibutuhkan sebelum dibangun
