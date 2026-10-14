@@ -16,7 +16,7 @@ npm run build       # Build produksi
 membuat klaster sementara, memasang stub minimal skema `auth` Supabase
 (`supabase/tests/00_supabase_stub.sql`), menerapkan semua migrasi, menjalankan
 semua berkas `supabase/tests/1*.sql` (alur & RLS: `10_rls_dan_alur`, `11_dashboard`,
-`12_cms_berita`, `13_konten_situs`, `14_administrasi`), lalu menghapus klaster. Database Supabase
+`12_cms_berita`, `13_konten_situs`, `14_administrasi`, `15_operasional`), lalu menghapus klaster. Database Supabase
 sungguhan tidak disentuh.
 
 ## Pemetaan skenario wajib
@@ -75,4 +75,15 @@ kredensial/konfigurasi nyata tersedia (lihat daftar uji di dokumen terkait).
 | SK tidak tampil sebelum diperiksa; SK internal hanya untuk anggota aktif | Otomatis | DB: "SK tidak dapat ditampilkan sebelum diperiksa", "akun pending tidak melihat SK internal" |
 | Bucket dokumen privat | Otomatis | DB: "bucket dokumen bersifat privat" |
 | Unggah/unduh PDF ke Supabase Storage nyata (tautan sementara) | **Manual** (butuh proyek Supabase nyata) | `docs/PANDUAN_ADMINISTRASI_SEKOLAH.md` §5 |
+
+## Operasional (Tahap 6)
+
+| Skenario | Status | Bukti |
+|----------|--------|-------|
+| Perubahan konten penting tercatat (pelaku, judul, nama kolom) tanpa menyalin isi | Otomatis | DB `15_operasional.sql` |
+| Log hanya dibaca Super Admin dan tidak dapat dihapus dari aplikasi | Otomatis | DB: "log aktivitas hanya dapat dibaca Super Admin", "… tidak dapat dihapus dari aplikasi" |
+| Status sistem hanya untuk Super Admin; semua tabel memakai RLS; bucket dokumen privat | Otomatis | DB: "semua tabel public memakai RLS", "status sistem melaporkan bucket …" |
+| Pemeriksaan konfigurasi tidak pernah membocorkan nilai rahasia | Otomatis | unit `tests/config-status.test.ts` |
+| Pembersihan pratinjau impor > 7 hari, riwayat impor tetap | Otomatis | DB: "hanya pratinjau terbengkalai > 7 hari yang dibersihkan" |
+| Kueri baca-saja di `PANDUAN_DATABASE.md` §9 | Otomatis | `scripts/test-db.sh` mengambil blok SQL §9 & §10.7 langsung dari dokumen dan menjalankannya dalam transaksi `READ ONLY` |
 

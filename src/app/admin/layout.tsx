@@ -32,6 +32,8 @@ const GROUPS: { label: string; items: { href: string; label: string; need: Need 
       { href: "/admin/pengguna", label: "Pengguna", need: "super" },
       { href: "/admin/langganan", label: "Langganan Berita", need: "super" },
       { href: "/admin/pengaturan", label: "Pengaturan", need: "super" },
+      { href: "/admin/status", label: "Status Sistem", need: "super" },
+      { href: "/admin/log", label: "Log Aktivitas", need: "super" },
     ],
   },
 ];

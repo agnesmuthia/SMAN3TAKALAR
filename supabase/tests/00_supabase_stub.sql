@@ -16,6 +16,7 @@ create table auth.users (
   id uuid primary key default extensions.gen_random_uuid(),
   email text,
   raw_user_meta_data jsonb not null default '{}'::jsonb,
+  last_sign_in_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -38,4 +39,12 @@ create table storage.buckets (
   public boolean default false,
   file_size_limit bigint,
   allowed_mime_types text[]
+);
+
+-- Objek Storage (kolom minimal) untuk menguji kueri pemeliharaan di panduan.
+create table storage.objects (
+  id uuid primary key default extensions.gen_random_uuid(),
+  bucket_id text references storage.buckets (id),
+  name text,
+  created_at timestamptz not null default now()
 );

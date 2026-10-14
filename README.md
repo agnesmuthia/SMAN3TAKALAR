@@ -9,7 +9,7 @@ Website sekolah berbasis **Next.js 16 (App Router) + Supabase** dengan:
 - **Langganan berita melalui email** dengan double opt-in, berhenti berlangganan
   tanpa login, daftar penolakan, dan dashboard admin "Langganan Berita".
 
-Seluruh panduan berbahasa Indonesia ada di folder [`docs/`](docs/).
+Seluruh panduan berbahasa Indonesia ada di folder [`docs/`](docs/); mulai dari [indeks dokumentasi](docs/README.md).
 
 ## Status fitur
 

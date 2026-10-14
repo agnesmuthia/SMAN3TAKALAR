@@ -21,7 +21,9 @@ export async function GET(request: NextRequest) {
   if (!authorized(request)) return new NextResponse("Tidak diizinkan.", { status: 401 });
 
   const campaigns = await processPendingCampaigns();
-  const { data: purge } = await createAdminClient().rpc("newsletter_purge_stale");
+  const admin = createAdminClient();
+  const { data: purge } = await admin.rpc("newsletter_purge_stale");
+  const { data: schoolPurge } = await admin.rpc("school_purge_stale");
 
   return NextResponse.json({
     campaigns: campaigns.map((c) => ({
@@ -30,5 +32,6 @@ export async function GET(request: NextRequest) {
       ...(c.result.ok ? { batch: c.result.batch } : { error: c.result.error }),
     })),
     purge,
+    schoolPurge,
   });
 }

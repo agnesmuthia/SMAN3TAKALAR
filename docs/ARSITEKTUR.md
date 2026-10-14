@@ -53,6 +53,7 @@ hanya lewat Supabase Dashboard (lihat `docs/PANDUAN_DATABASE.md`).
 | Administrasi sekolah | `academic_years`, `semesters`, `schedule_import_batches`, `decrees`, `library_items`; kolom `schedule_entries.semester_id/import_batch_id`; Storage bucket **privat** `documents` | `src/app/admin/{tahun-ajaran,jadwal,arsip-sk,perpustakaan}`, `src/app/admin/sekolah/actions.ts`, `src/app/{dokumen,perpustakaan}`, `src/lib/school` |
 | Dashboard internal | `announcements`, `announcement_reads`, `schedule_entries`, `assignments` | `src/app/dashboard`, `src/app/admin/pengumuman`, `src/app/admin/jadwal` |
 | Pengaturan | `app_settings` | `src/app/admin/pengaturan` |
+| Operasional | `admin_audit_log` (+ trigger `audit_content_change`), fungsi `admin_system_status()`, `school_purge_stale()` | `src/app/admin/status`, `src/app/admin/log`, `src/lib/ops` |
 
 Prinsip isolasi: modul buletin hanya membaca berita **publik yang terbit**; tidak ada
 relasi antara tabel buletin dan pengumuman/jadwal/tugas. Modul Ruang Rasa (belum ada)

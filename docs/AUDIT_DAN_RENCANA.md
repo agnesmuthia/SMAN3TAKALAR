@@ -107,7 +107,7 @@ Semua migrasi bersifat **aditif** (menambah tabel/kolom), tidak menghapus data.
 | 4 ✅ | Profil sekolah (hero, logo, kontak, media sosial), halaman profil via CMS, program unggulan, galeri dengan konfirmasi izin foto, prestasi (saring tingkat/tahun), kalender kegiatan publik/internal, pengumuman publik. Lihat `docs/PANDUAN_MENGELOLA_HALAMAN.md` | Ukuran unggahan & kuota Storage; izin publikasi foto siswa tetap tanggung jawab penerbit |
 | 5 ✅ | Peran Petugas Administrasi; tahun ajaran/semester (satu aktif); impor jadwal CSV/XLSX dengan pratinjau, laporan per baris, deteksi duplikat & bentrok, tanpa menimpa data lama, dan pembatalan per impor; arsip SK PDF (bucket privat, wajib konfirmasi pemeriksaan); perpustakaan digital. Lihat `docs/PANDUAN_ADMINISTRASI_SEKOLAH.md` | Parsing XLSX di server (dibatasi 2 MB/2.000 baris, hanya staf); SK & PDF tetap harus diperiksa manusia |
 | **RR** | **Ruang Rasa** (lihat bagian 9): menunggu keputusan kebijakan sekolah | Data sangat sensitif (anak, kekerasan); salah desain berdampak serius |
-| 6 | Panduan database & operasional admin | — |
+| 6 ✅ | Panduan database (peta tabel, relasi, migrasi, kueri aman, prosedur standar) & operasional admin (rutinitas, checklist tahun ajaran, insiden); halaman Status Sistem & Log Aktivitas; log perubahan konten otomatis. Lihat `docs/README.md` | Prosedur manual tetap bergantung pada disiplin petugas; dicatat di buku log |
 | 7 | Backup/pemulihan, audit keamanan, pengujian akhir | Backup Supabase tergantung paket; harus diuji, bukan diasumsikan |
 | 8 | Dokumentasi final & deployment Hostinger | Butuh akses paket Hostinger yang mendukung Node.js |
 

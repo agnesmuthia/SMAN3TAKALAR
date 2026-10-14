@@ -29,7 +29,7 @@ Kata sandi tidak pernah ditulis di dokumentasi ini dan tidak boleh dibagikan.
 
 | Peran | Diberikan oleh | Dapat mengakses |
 |-------|----------------|-----------------|
-| Super Admin (`admin`) | Admin pertama via SQL (sekali), selanjutnya Super Admin lain | Semua menu admin |
+| Super Admin (`admin`) | Admin pertama via SQL (sekali), selanjutnya Super Admin lain | Semua menu admin, termasuk Status Sistem & Log Aktivitas |
 | Admin Website | Super Admin (Pengguna → CMS) | Ringkasan, Berita (termasuk menerbitkan & kategori), Pengumuman, Halaman, Program, Galeri, Prestasi, Kalender, Profil Sekolah |
 | Petugas Administrasi | Super Admin (Pengguna → Peran staf) | Ringkasan, Tahun Ajaran, Jadwal & impor, Arsip SK, Perpustakaan |
 | Editor | Super Admin (Pengguna → CMS) | Ringkasan, Berita (menulis & mengirim untuk persetujuan) |
@@ -64,6 +64,9 @@ database; akses database hanya untuk petugas teknis (lihat `docs/PANDUAN_DATABAS
    prosedur admin pertama di `docs/peran-dan-verifikasi.md`.
 
 ## 6. Panduan terkait
+
+- Indeks semua dokumen: `docs/README.md`
+- Rutinitas, checklist tahun ajaran, insiden: `docs/PANDUAN_OPERASIONAL_ADMIN.md`
 
 - Mengelola berita: `docs/PANDUAN_MENGELOLA_BERITA.md`
 - Mengelola halaman, galeri, prestasi, kalender, pengumuman: `docs/PANDUAN_MENGELOLA_HALAMAN.md`
