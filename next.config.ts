@@ -10,6 +10,11 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  experimental: {
+    // Unggahan terbesar: PDF SK/perpustakaan maks. 10 MB (divalidasi di server)
+    // + isian formulir + overhead multipart. Bawaan Next.js hanya 1 MB.
+    serverActions: { bodySizeLimit: "11mb" },
+  },
   turbopack: {
     rules: {
       "*.css": {

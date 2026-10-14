@@ -1,56 +1,48 @@
 # Website SMA Negeri 3 Takalar
 
-Website sekolah berbasis **Next.js 16 (App Router) + Supabase** dengan:
+Website resmi sekolah berbasis **Next.js 16 (App Router) + Supabase**: portal berita,
+profil & konten sekolah yang dikelola tanpa coding, dashboard guru/siswa/BK, administrasi
+sekolah (tahun ajaran, impor jadwal, arsip SK, perpustakaan), dan langganan berita email.
 
-- Berita sekolah yang dapat dibaca **tanpa login**.
-- Login & pendaftaran **email/kata sandi** dan **Google** (Supabase Auth, OAuth 2.0 + PKCE).
-- Sistem peran **guru, siswa, Guru BK, admin** dengan verifikasi admin. Login Google
-  **tidak pernah** memberi peran secara otomatis.
-- **Langganan berita melalui email** dengan double opt-in, berhenti berlangganan
-  tanpa login, daftar penolakan, dan dashboard admin "Langganan Berita".
+Mulai dari **[docs/SERAH_TERIMA.md](docs/SERAH_TERIMA.md)** (ringkasan & status), lalu
+**[indeks dokumentasi](docs/README.md)**. Semua panduan berbahasa Indonesia.
 
-Seluruh panduan berbahasa Indonesia ada di folder [`docs/`](docs/).
+## Fitur
 
-## Status fitur
+| Area | Isi |
+|------|-----|
+| Publik | Beranda, berita (kategori, tag, cari), profil, pengumuman, galeri, prestasi, kalender, perpustakaan, arsip SK, langganan berita |
+| Akun | Email/kata sandi & Google; verifikasi guru/siswa oleh admin. Login **tidak pernah** memberi peran otomatis |
+| Dashboard | Guru (jadwal, tugas & materi), siswa (jadwal semester aktif, tugas), Guru BK (kerangka), pengumuman internal |
+| CMS & admin | Alur berita draf → review → terbit/terjadwal → arsip dengan revisi; halaman, program, galeri, prestasi, kalender, profil sekolah; tahun ajaran, impor jadwal CSV/XLSX dengan pratinjau; arsip SK privat; perpustakaan; pengguna & peran; Status Sistem; Log Aktivitas |
+| Operasional | Backup/pulih terenkripsi, smoke test, `/api/health`, penjadwal cron |
 
-| Fitur | Status |
-|-------|--------|
-| Halaman publik (beranda, berita, kebijakan privasi) | Berfungsi (butuh proyek Supabase untuk data) |
-| Skema database, RLS, fungsi peran & langganan | Selesai, diuji di PostgreSQL lokal (`npm run test:db`) |
-| Login email, verifikasi peran, admin | Kode selesai; perlu proyek Supabase |
-| Dashboard guru / siswa / BK | Pengumuman internal, jadwal pelajaran, tugas & materi (teks + tautan); BK baru kerangka. Diuji di level database (RLS) dan unit; **belum diuji end-to-end dengan Supabase sungguhan** |
-| **Login Google** | Kode selesai; **belum aktif** sampai OAuth Client Google dibuat dan provider Supabase dikonfigurasi ([panduan](docs/google-oauth.md)) |
-| **Pengiriman email** (konfirmasi & buletin) | Kode selesai; **belum aktif** sampai domain pengirim terverifikasi dan Resend dikonfigurasi ([panduan](docs/langganan-berita-email.md)) |
-| Ruang Rasa, dokumen SK, unggah file tugas | Belum dibangun |
+## Status
+
+| Bagian | Status |
+|--------|--------|
+| Kode & pengujian otomatis | Selesai: 196 unit test, 234 asersi database, uji backup→pulih, smoke test |
+| Proyek Supabase produksi, hosting Hostinger | **Belum dipasang.** Ikuti [docs/PANDUAN_DEPLOYMENT_HOSTINGER.md](docs/PANDUAN_DEPLOYMENT_HOSTINGER.md) |
+| Login Google, email (Resend) | Kode selesai; **aktif setelah kredensial asli dikonfigurasi** ([google-oauth](docs/google-oauth.md), [email](docs/langganan-berita-email.md)) |
+| Backup | Skrip diuji di PostgreSQL lokal; **uji pertama di Supabase sungguhan belum dilakukan** |
+| Ruang Rasa | Belum dibangun; menunggu keputusan kebijakan sekolah |
 
 ## Menjalankan secara lokal
 
-Prasyarat: Node.js 20.9+ dan proyek Supabase (cloud atau Supabase CLI lokal).
+Prasyarat: Node.js 20.9+ (disarankan 22, lihat `.nvmrc`) dan proyek Supabase
+(cloud untuk pengembangan, atau Supabase CLI lokal).
 
 ```bash
-npm install
-cp .env.example .env.local      # isi nilai Supabase & rahasia (lihat komentar di file)
+npm ci
+cp .env.example .env.local        # isi nilai Supabase & rahasia (lihat komentar di file)
+npx supabase link --project-ref <project-ref-pengembangan>
+npx supabase db push              # menerapkan supabase/migrations/*.sql
+psql "$SUPABASE_DB_URL" -f supabase/seed.sql   # opsional, data FIKTIF, jangan di produksi
+npm run dev                       # http://localhost:3000
 ```
 
-Terapkan migrasi ke proyek Supabase:
-
-```bash
-npx supabase link --project-ref <project-ref>
-npx supabase db push            # menerapkan supabase/migrations/*.sql
-# opsional, hanya untuk pengembangan: data berita fiktif
-psql "$SUPABASE_DB_URL" -f supabase/seed.sql
-```
-
-Lalu:
-
-```bash
-npm run dev                     # http://localhost:3000
-```
-
-Untuk mencoba alur langganan tanpa mengirim email, isi `EMAIL_PROVIDER=console`
-(hanya di pengembangan): email konfirmasi dicetak di terminal.
-
-Buat admin pertama sesuai [docs/peran-dan-verifikasi.md](docs/peran-dan-verifikasi.md).
+Isi `EMAIL_PROVIDER=console` (hanya pengembangan) untuk mencoba langganan tanpa mengirim
+email. Admin pertama: [docs/PANDUAN_DATABASE.md](docs/PANDUAN_DATABASE.md) §10.1.
 
 ## Perintah
 
@@ -58,53 +50,46 @@ Buat admin pertama sesuai [docs/peran-dan-verifikasi.md](docs/peran-dan-verifika
 |----------|--------|
 | `npm run dev` | Server pengembangan |
 | `npm run build` / `npm start` | Build & jalankan produksi |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | Pemeriksaan TypeScript |
-| `npm test` | Pengujian unit (Vitest) |
-| `npm run test:db` | Pengujian migrasi + RLS di PostgreSQL sementara |
+| `npm run lint` / `npm run typecheck` | ESLint / TypeScript |
+| `npm test` | Unit test (Vitest), termasuk tes keamanan statis |
+| `npm run test:db` | Migrasi + RLS + audit hak akses di PostgreSQL sementara |
+| `npm run test:backup` | Backup terenkripsi → pemulihan → bandingkan isi tabel |
+| `npm run smoke -- <URL>` | Smoke test situs yang berjalan (lokal/produksi) |
 | `npm run check` | lint + typecheck + test |
+| `./scripts/backup-db.sh`, `node scripts/backup-storage.mjs` | Backup produksi ([panduan](docs/PANDUAN_BACKUP_PEMULIHAN.md)) |
 
 ## Struktur
 
 ```
 src/
-  app/                    Halaman & route (App Router)
-    berita/               Berita publik
-    masuk/ daftar/        Autentikasi (email + Google)
-    auth/callback|confirm|keluar   Callback OAuth, verifikasi email, logout
-    akun/                 Pelengkapan profil, menunggu verifikasi, penautan Google
-    dashboard/            Dashboard guru / siswa / BK, pengumuman
-    admin/                Verifikasi, pengguna, berita, pengumuman, jadwal, Langganan Berita, pengaturan
-    langganan/            Konfirmasi & berhenti berlangganan (publik)
-    api/newsletter/       Unsubscribe sekali klik, webhook penyedia email
-    api/cron/newsletter   Pengiriman bertahap & retensi
-  lib/
-    auth/                 DAL sesi/peran, validasi redirect, routing peran
-    newsletter/           Token, template, penyedia email, pengirim bertahap, webhook
-    supabase/             Klien server/browser/service role, proxy sesi
-  proxy.ts                Penyegaran sesi & proteksi area privat (Next 16 "proxy")
+  app/            Halaman & route (publik, akun, dashboard, admin, api)
+  components/     Komponen UI bersama (cms/ untuk komponen CMS)
+  lib/            auth (DAL & peran), cms, content, school, newsletter, ops, security, supabase
+  proxy.ts        Sesi Supabase, proteksi area privat, Content-Security-Policy (nonce)
+  instrumentation.ts  Pemeriksaan konfigurasi saat server mulai
 supabase/
-  migrations/             Skema, RLS, fungsi
-  tests/                  Stub auth + pengujian SQL
-  seed.sql                Data fiktif
-docs/                     Panduan konfigurasi & pengujian (Bahasa Indonesia)
+  migrations/     Skema, RLS, fungsi (aditif, urut waktu)
+  tests/          Stub Supabase + uji SQL (RLS, alur, hak akses)
+scripts/          Uji database, backup/pulih, smoke test
+tests/            Unit test
+docs/             Panduan (Bahasa Indonesia)
+.github/workflows CI & penjadwal cron
 ```
 
 ## Prinsip keamanan
 
-- Semua rahasia di environment variables; `.env.example` hanya berisi placeholder.
-  Client Secret Google hanya di dasbor Supabase.
-- Otorisasi berlapis: proxy (login) → DAL di setiap halaman & server action (status
-  dan peran) → Row Level Security di database.
-- Redirect setelah login hanya ke path internal tervalidasi (anti open redirect).
-- NIP/NIS tidak pernah masuk metadata OAuth; hanya dapat dibaca pemilik & admin.
-- Tidak ada analitik pihak ketiga.
-- Buletin hanya memuat berita publik yang terbit; setiap email dikirim ke satu penerima.
+- Otorisasi berlapis: proxy (login) → pemeriksaan izin di setiap halaman & server action
+  → Row Level Security di database. Diuji otomatis di CI.
+- Rahasia hanya di environment variables; service role key hanya di server.
+- Content-Security-Policy dengan nonce, HSTS, dan header keamanan lain.
+- HTML disanitasi saat disimpan dan ditampilkan; unggahan diperiksa dari isi file.
+- Tidak ada endpoint SQL bebas; data pribadi (NIP/NIS, email pelanggan, SK internal)
+  dipisah dan dibatasi RLS.
+- Rincian: [docs/AUDIT_KEAMANAN.md](docs/AUDIT_KEAMANAN.md), [docs/ARSITEKTUR.md](docs/ARSITEKTUR.md).
 
-## Deploy (Vercel)
+## Deployment
 
-1. Impor repository di Vercel, isi environment variables sesuai `.env.example`.
-2. Atur `NEXT_PUBLIC_SITE_URL` ke domain produksi.
-3. `vercel.json` menjadwalkan `/api/cron/newsletter` (isi `CRON_SECRET`).
-4. Ikuti [docs/google-oauth.md](docs/google-oauth.md) dan
-   [docs/langganan-berita-email.md](docs/langganan-berita-email.md).
+Produksi direncanakan di **Hostinger (aplikasi web Node.js, paket Business/Cloud)** +
+**Supabase**: [docs/PANDUAN_DEPLOYMENT_HOSTINGER.md](docs/PANDUAN_DEPLOYMENT_HOSTINGER.md).
+`vercel.json` hanya berlaku bila sekolah memilih Vercel; di Hostinger penjadwal memakai
+`.github/workflows/cron.yml` atau cron hPanel.

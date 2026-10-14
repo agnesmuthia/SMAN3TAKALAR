@@ -35,7 +35,7 @@ jobs:
       - run: npm run build
 
   database:
-    name: Migrasi, RLS, dan alur langganan (PostgreSQL)
+    name: Migrasi, RLS, hak akses, backup & pemulihan (PostgreSQL)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -47,3 +47,5 @@ jobs:
             sudo apt-get install -y postgresql
           fi
       - run: npm run test:db
+      # Backup terenkripsi → pemulihan ke database lain → isi tabel dibandingkan.
+      - run: npm run test:backup

@@ -15,7 +15,8 @@ npm run build       # Build produksi
 `npm run test:db` membutuhkan binari PostgreSQL (`initdb`, `pg_ctl`, `psql`). Skrip
 membuat klaster sementara, memasang stub minimal skema `auth` Supabase
 (`supabase/tests/00_supabase_stub.sql`), menerapkan semua migrasi, menjalankan
-`supabase/tests/10_rls_dan_alur.sql`, lalu menghapus klaster. Database Supabase
+semua berkas `supabase/tests/1*.sql` (alur & RLS: `10_rls_dan_alur`, `11_dashboard`,
+`12_cms_berita`, `13_konten_situs`, `14_administrasi`, `15_operasional`, `16_hak_akses`), lalu menghapus klaster. Database Supabase
 sungguhan tidak disentuh.
 
 ## Pemetaan skenario wajib
@@ -49,3 +50,59 @@ kredensial/konfigurasi nyata tersedia (lihat daftar uji di dokumen terkait).
 - Uji akses langsung ke API Supabase dengan anon key (mis. `curl` ke
   `/rest/v1/newsletter_subscribers`) → harus ditolak.
 - Uji tampilan di ponsel (lebar 360–414 px) dan pembaca layar dasar.
+
+## Konten situs (Tahap 4)
+
+| Skenario | Status | Bukti |
+|----------|--------|-------|
+| Pengunjung hanya melihat halaman/program/album/prestasi/kegiatan yang diterbitkan | Otomatis | DB `13_konten_situs.sql` |
+| Kegiatan internal hanya untuk anggota aktif | Otomatis | DB: "pengunjung hanya melihat kegiatan publik yang diterbitkan", "siswa aktif juga melihat kegiatan internal", "akun pending tidak melihat kegiatan internal" |
+| Album tidak dapat terbit tanpa konfirmasi izin foto | Otomatis | DB: constraint `gallery_publish_needs_consent` |
+| Editor berita tidak dapat mengubah konten situs/pengumuman | Otomatis | DB: "editor berita tidak dapat membuat halaman", "… membuat pengumuman" |
+| Pengumuman internal tidak terbaca pengunjung; pengumuman publik terbaca | Otomatis | DB `11_dashboard.sql`, `13_konten_situs.sql` |
+| Grid kalender (mulai Senin, kegiatan beberapa hari) | Otomatis | unit `tests/calendar.test.ts` |
+| Unggah foto ke bucket `site-media` | **Manual** (butuh proyek Supabase nyata) | `docs/PANDUAN_MENGELOLA_HALAMAN.md` §4 |
+
+## Administrasi sekolah (Tahap 5)
+
+| Skenario | Status | Bukti |
+|----------|--------|-------|
+| Hanya Super Admin & Petugas Administrasi mengelola tahun ajaran/semester/SK | Otomatis | DB `14_administrasi.sql`: "Admin Website tidak dapat membuat tahun ajaran", "… mengelola arsip SK" |
+| Hanya satu semester aktif | Otomatis | DB: "hanya satu semester aktif; tahun ajarannya ikut aktif" |
+| Impor tidak menimpa data lama; batch tidak dapat diimpor dua kali; pembatalan hanya menghapus baris batch | Otomatis | DB: "impor tidak menimpa jadwal yang sudah ada", "membatalkan impor hanya menghapus baris dari batch tersebut" |
+| Pembacaan CSV/XLSX, laporan per baris, duplikat, bentrok guru/kelas, batas baris | Otomatis | unit `tests/schedule-import.test.ts` (termasuk file XLSX nyata `tests/fixtures/jadwal-contoh.xlsx`) |
+| Validasi PDF (isi, ukuran, skrip) | Otomatis | unit `tests/pdf.test.ts` |
+| SK tidak tampil sebelum diperiksa; SK internal hanya untuk anggota aktif | Otomatis | DB: "SK tidak dapat ditampilkan sebelum diperiksa", "akun pending tidak melihat SK internal" |
+| Bucket dokumen privat | Otomatis | DB: "bucket dokumen bersifat privat" |
+| Unggah/unduh PDF ke Supabase Storage nyata (tautan sementara) | **Manual** (butuh proyek Supabase nyata) | `docs/PANDUAN_ADMINISTRASI_SEKOLAH.md` §5 |
+
+## Operasional (Tahap 6)
+
+| Skenario | Status | Bukti |
+|----------|--------|-------|
+| Perubahan konten penting tercatat (pelaku, judul, nama kolom) tanpa menyalin isi | Otomatis | DB `15_operasional.sql` |
+| Log hanya dibaca Super Admin dan tidak dapat dihapus dari aplikasi | Otomatis | DB: "log aktivitas hanya dapat dibaca Super Admin", "… tidak dapat dihapus dari aplikasi" |
+| Status sistem hanya untuk Super Admin; semua tabel memakai RLS; bucket dokumen privat | Otomatis | DB: "semua tabel public memakai RLS", "status sistem melaporkan bucket …" |
+| Pemeriksaan konfigurasi tidak pernah membocorkan nilai rahasia | Otomatis | unit `tests/config-status.test.ts` |
+| Pembersihan pratinjau impor > 7 hari, riwayat impor tetap | Otomatis | DB: "hanya pratinjau terbengkalai > 7 hari yang dibersihkan" |
+| Kueri baca-saja di `PANDUAN_DATABASE.md` §9 | Otomatis | `scripts/test-db.sh` mengambil blok SQL §9 & §10.7 langsung dari dokumen dan menjalankannya dalam transaksi `READ ONLY` |
+
+## Keamanan, backup, dan smoke test (Tahap 7)
+
+```bash
+npm run test:backup                      # backup terenkripsi → pulih ke DB lain → isi tiap tabel dibandingkan
+npm run smoke -- http://localhost:3000   # atau URL produksi setelah deploy
+```
+
+| Skenario | Status | Bukti |
+|----------|--------|-------|
+| Pengunjung hanya dapat membaca tabel konten publik yang disetujui; tanpa hak tulis | Otomatis | DB `16_hak_akses.sql` |
+| Semua fungsi `SECURITY DEFINER` menetapkan `search_path`; fungsi trigger tidak dapat dipanggil | Otomatis | DB `16_hak_akses.sql` |
+| Setiap server action memeriksa izin; service role hanya di file yang ditinjau | Otomatis | unit `tests/security-static.test.ts` |
+| CSP dengan nonce tanpa `unsafe-eval` di produksi | Otomatis + browser | unit `tests/csp.test.ts`; pemeriksaan Playwright: editor & server action berjalan, 0 pelanggaran CSP |
+| Backup → pulih menghasilkan isi tabel identik; sekuens & Unicode pulih | Otomatis | `scripts/test-backup-restore.sh` (CI) |
+| Pengaman produksi, frasa sandi salah, file rusak, backup tanpa enkripsi ditolak | Otomatis | `scripts/test-backup-restore.sh` |
+| Backup/pulih file Storage (subfolder, tidak menimpa, checksum, jalur aman) | Otomatis | unit `tests/storage-backup.test.ts` |
+| Backup/pulih pada proyek Supabase **sungguhan** | **Manual (belum dilakukan)** | `docs/PANDUAN_BACKUP_PEMULIHAN.md` §6 & §10 |
+| Halaman publik 200, halaman privat menolak tanpa login, header keamanan, `/api/health` | Otomatis (per deploy) | `scripts/smoke-test.mjs` (36 pemeriksaan) |
+

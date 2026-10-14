@@ -3,12 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { assertAdmin } from "@/lib/auth/dal";
+import { assertAdmin, newsActionContext } from "@/lib/auth/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { slugify } from "@/lib/slug";
 import {
   approveAndStartCampaign,
-  handleNewsPublished,
   retryFailedDeliveries,
   runCampaignBatch,
 } from "@/lib/newsletter/service";
@@ -17,6 +15,12 @@ import type { ActionFormState } from "@/components/action-form";
 type State = ActionFormState;
 const ok = (message: string): State => ({ status: "success", message });
 const fail = (message: string): State => ({ status: "error", message });
+
+// Pengumuman dikelola penerbit konten (Super Admin & Admin Website).
+async function contentPublisher() {
+  const ctx = await newsActionContext();
+  return ctx?.access.canPublish ? ctx : null;
+}
 
 async function guard(): Promise<Awaited<ReturnType<typeof assertAdmin>> | null> {
   try {
@@ -87,103 +91,6 @@ export async function setUserAccessAction(_prev: State, formData: FormData): Pro
   }
   revalidatePath("/admin/pengguna");
   return ok("Akses pengguna diperbarui.");
-}
-
-// -----------------------------------------------------------------------------
-// Berita
-// -----------------------------------------------------------------------------
-
-const newsSchema = z.object({
-  id: z.uuid().optional(),
-  title: z.string().trim().min(3, "Judul minimal 3 karakter.").max(200),
-  slug: z.string().trim().max(120).optional(),
-  excerpt: z.string().trim().max(400, "Ringkasan maksimal 400 karakter."),
-  content: z.string().max(50000),
-  coverImageUrl: z
-    .string()
-    .trim()
-    .max(1000)
-    .refine((v) => v === "" || /^https:\/\//.test(v), "URL gambar harus diawali https://"),
-  status: z.enum(["draft", "published", "archived"]),
-  visibility: z.enum(["public", "internal"]),
-  newsletterEligible: z.boolean(),
-});
-
-export async function saveNewsAction(_prev: State, formData: FormData): Promise<State> {
-  const ctx = await guard();
-  if (!ctx) return fail("Akses ditolak.");
-  const parsed = newsSchema.safeParse({
-    id: formData.get("id") || undefined,
-    title: formData.get("title") ?? "",
-    slug: formData.get("slug") || undefined,
-    excerpt: formData.get("excerpt") ?? "",
-    content: formData.get("content") ?? "",
-    coverImageUrl: formData.get("coverImageUrl") ?? "",
-    status: formData.get("status"),
-    visibility: formData.get("visibility"),
-    newsletterEligible: formData.get("newsletterEligible") === "on",
-  });
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Data tidak valid.");
-  const v = parsed.data;
-  const slug = slugify(v.slug || v.title);
-  if (!slug) return fail("Slug tidak valid.");
-
-  let previousStatus: string | null = null;
-  let publishedAt: string | null = null;
-  if (v.id) {
-    const { data: existing } = await ctx.supabase
-      .from("news")
-      .select("status, published_at")
-      .eq("id", v.id)
-      .maybeSingle<{ status: string; published_at: string | null }>();
-    if (!existing) return fail("Berita tidak ditemukan.");
-    previousStatus = existing.status;
-    publishedAt = existing.published_at;
-  }
-  if (v.status === "published" && !publishedAt) publishedAt = new Date().toISOString();
-
-  const row = {
-    title: v.title,
-    slug,
-    excerpt: v.excerpt,
-    content: v.content,
-    cover_image_url: v.coverImageUrl || null,
-    status: v.status,
-    visibility: v.visibility,
-    newsletter_eligible: v.newsletterEligible,
-    published_at: publishedAt,
-  };
-
-  const result = v.id
-    ? await ctx.supabase.from("news").update(row).eq("id", v.id).select("id").single<{ id: string }>()
-    : await ctx.supabase.from("news").insert({ ...row, author_id: ctx.user.id }).select("id").single<{ id: string }>();
-  if (result.error || !result.data) {
-    if (result.error?.code === "23505") return fail("Slug sudah dipakai berita lain.");
-    return fail("Berita gagal disimpan.");
-  }
-
-  let notice = "";
-  if (v.status === "published" && previousStatus !== "published") {
-    const autoError = await handleNewsPublished(result.data.id, ctx.user.id);
-    if (autoError) notice = ` ${autoError}`;
-  }
-
-  revalidatePath("/admin/berita");
-  revalidatePath("/berita");
-  revalidatePath("/");
-  if (!v.id) redirect(`/admin/berita/${result.data.id}?disimpan=1`);
-  return ok(`Berita disimpan.${notice}`);
-}
-
-export async function deleteNewsAction(_prev: State, formData: FormData): Promise<State> {
-  const ctx = await guard();
-  if (!ctx) return fail("Akses ditolak.");
-  const id = z.uuid().safeParse(formData.get("id"));
-  if (!id.success) return fail("Data tidak valid.");
-  const { error } = await ctx.supabase.from("news").delete().eq("id", id.data);
-  if (error) return fail("Berita tidak dapat dihapus (mungkin sudah dipakai di kampanye). Arsipkan saja.");
-  revalidatePath("/admin/berita");
-  redirect("/admin/berita");
 }
 
 // -----------------------------------------------------------------------------
@@ -413,12 +320,12 @@ const announcementSchema = z.object({
   id: z.uuid().optional(),
   title: z.string().trim().min(3, "Judul minimal 3 karakter.").max(200),
   body: z.string().trim().max(5000, "Isi maksimal 5000 karakter."),
-  audience: z.enum(["semua", "guru", "siswa", "guru_bk"]),
+  audience: z.enum(["publik", "semua", "guru", "siswa", "guru_bk"]),
   status: z.enum(["draft", "published", "archived"]),
 });
 
 export async function saveAnnouncementAction(_prev: State, formData: FormData): Promise<State> {
-  const ctx = await guard();
+  const ctx = await contentPublisher();
   if (!ctx) return fail("Akses ditolak.");
   const parsed = announcementSchema.safeParse({
     id: formData.get("id") || undefined,
@@ -449,12 +356,14 @@ export async function saveAnnouncementAction(_prev: State, formData: FormData): 
   if (error) return fail("Pengumuman gagal disimpan.");
   revalidatePath("/admin/pengumuman");
   revalidatePath("/dashboard", "layout");
+  revalidatePath("/pengumuman");
+  revalidatePath("/");
   if (!v.id) redirect("/admin/pengumuman?disimpan=1");
   return ok("Pengumuman disimpan.");
 }
 
 export async function deleteAnnouncementAction(_prev: State, formData: FormData): Promise<State> {
-  const ctx = await guard();
+  const ctx = await contentPublisher();
   if (!ctx) return fail("Akses ditolak.");
   const id = z.uuid().safeParse(formData.get("id"));
   if (!id.success) return fail("Data tidak valid.");
@@ -462,58 +371,6 @@ export async function deleteAnnouncementAction(_prev: State, formData: FormData)
   if (error) return fail("Pengumuman gagal dihapus.");
   revalidatePath("/admin/pengumuman");
   redirect("/admin/pengumuman");
-}
-
-const timeField = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Format jam harus HH:MM.");
-const scheduleSchema = z
-  .object({
-    className: z.string().trim().min(1, "Kelas wajib diisi.").max(40),
-    day: z.coerce.number().int().min(1).max(6),
-    start: timeField,
-    end: timeField,
-    subject: z.string().trim().min(1, "Mata pelajaran wajib diisi.").max(100),
-    teacherId: z.union([z.uuid(), z.literal("")]),
-    room: z.string().trim().max(40),
-  })
-  .refine((v) => v.end > v.start, { message: "Jam selesai harus setelah jam mulai.", path: ["end"] });
-
-export async function saveScheduleEntryAction(_prev: State, formData: FormData): Promise<State> {
-  const ctx = await guard();
-  if (!ctx) return fail("Akses ditolak.");
-  const parsed = scheduleSchema.safeParse({
-    className: formData.get("className") ?? "",
-    day: formData.get("day"),
-    start: formData.get("start") ?? "",
-    end: formData.get("end") ?? "",
-    subject: formData.get("subject") ?? "",
-    teacherId: formData.get("teacherId") ?? "",
-    room: formData.get("room") ?? "",
-  });
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Data tidak valid.");
-  const v = parsed.data;
-  const { error } = await ctx.supabase.from("schedule_entries").insert({
-    class_name: v.className,
-    day_of_week: v.day,
-    start_time: v.start,
-    end_time: v.end,
-    subject: v.subject,
-    teacher_id: v.teacherId || null,
-    room: v.room || null,
-  });
-  if (error) return fail("Jadwal gagal disimpan.");
-  revalidatePath("/admin/jadwal");
-  return ok("Jadwal ditambahkan.");
-}
-
-export async function deleteScheduleEntryAction(_prev: State, formData: FormData): Promise<State> {
-  const ctx = await guard();
-  if (!ctx) return fail("Akses ditolak.");
-  const id = z.uuid().safeParse(formData.get("id"));
-  if (!id.success) return fail("Data tidak valid.");
-  const { error } = await ctx.supabase.from("schedule_entries").delete().eq("id", id.data);
-  if (error) return fail("Jadwal gagal dihapus.");
-  revalidatePath("/admin/jadwal");
-  return ok("Jadwal dihapus.");
 }
 
 export async function setStudentClassAction(_prev: State, formData: FormData): Promise<State> {
@@ -526,4 +383,24 @@ export async function setStudentClassAction(_prev: State, formData: FormData): P
   if (error) return fail("Kelas gagal diperbarui (pastikan pengguna adalah siswa).");
   revalidatePath("/admin/pengguna");
   return ok("Kelas diperbarui.");
+}
+
+export async function setStaffRolesAction(_prev: State, formData: FormData): Promise<State> {
+  const ctx = await guard();
+  if (!ctx) return fail("Akses ditolak.");
+  const userId = z.uuid().safeParse(formData.get("userId"));
+  if (!userId.success) return fail("Data tidak valid.");
+  const roles = formData.getAll("staffRoles").map(String).filter((r) => r === "admin_website" || r === "editor" || r === "administrasi");
+  if (roles.includes("administrasi")) {
+    // Petugas Administrasi mengakses arsip SK internal: tidak untuk akun siswa.
+    const { data: target } = await ctx.supabase.from("profiles").select("role").eq("id", userId.data).maybeSingle<{ role: string | null }>();
+    if (!target || target.role === "siswa") return fail("Peran Petugas Administrasi tidak dapat diberikan kepada akun siswa.");
+  }
+  const { error } = await ctx.supabase.rpc("admin_set_staff_roles", { p_user_id: userId.data, p_roles: roles });
+  if (error) {
+    if (error.message.includes("profile_not_active")) return fail("Peran staf hanya untuk akun aktif.");
+    return fail("Peran staf gagal disimpan.");
+  }
+  revalidatePath("/admin/pengguna");
+  return ok("Peran staf disimpan.");
 }

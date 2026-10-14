@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ActionForm } from "@/components/action-form";
-import { requireRole } from "@/lib/auth/dal";
+import { requireNewsPublisher } from "@/lib/auth/dal";
 import { deleteAnnouncementAction } from "../../actions";
 import { AnnouncementForm, type AnnouncementValues } from "../announcement-form";
 
@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Ubah pengumuman" };
 
 export default async function UbahPengumumanPage({ params }: PageProps<"/admin/pengumuman/[id]">) {
   const { id } = await params;
-  const ctx = await requireRole(["admin"], `/admin/pengumuman/${id}`);
+  const ctx = await requireNewsPublisher(`/admin/pengumuman/${id}`);
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
   const { data } = await ctx.supabase
     .from("announcements")

@@ -19,7 +19,7 @@ export function SubscribeForm({
   const dark = variant === "dark";
 
   return (
-    <section aria-labelledby={`${id}-judul`} className={dark ? "" : "card"}>
+    <section aria-labelledby={`${id}-judul`} className={dark ? "" : "card subscribe-inline"}>
       <h2 id={`${id}-judul`} className={`text-lg font-bold ${dark ? "text-white" : "text-brand-900"}`}>
         Dapatkan Berita Terbaru Sekolah
       </h2>

@@ -4,7 +4,7 @@ import { ActionForm } from "@/components/action-form";
 import { requireRole } from "@/lib/auth/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ROLE_LABEL, STATUS_LABEL, type AccountStatus, type UserRole } from "@/lib/auth/types";
-import { setStudentClassAction, setUserAccessAction } from "../actions";
+import { setStaffRolesAction, setStudentClassAction, setUserAccessAction } from "../actions";
 
 export const metadata: Metadata = { title: "Pengguna" };
 
@@ -23,6 +23,14 @@ export default async function PenggunaPage({ searchParams }: PageProps<"/admin/p
   const { data: profiles } = ids.length
     ? await ctx.supabase.from("profiles").select("id, full_name, role, status, class_name").in("id", ids)
     : { data: [] };
+  const { data: staff } = ids.length
+    ? await ctx.supabase.from("staff_roles").select("user_id, role").in("user_id", ids)
+    : { data: [] };
+  const staffById = new Map<string, Set<string>>();
+  for (const r of (staff ?? []) as { user_id: string; role: string }[]) {
+    if (!staffById.has(r.user_id)) staffById.set(r.user_id, new Set());
+    staffById.get(r.user_id)!.add(r.role);
+  }
   const byId = new Map(
     ((profiles ?? []) as { id: string; full_name: string | null; role: UserRole | null; status: AccountStatus; class_name: string | null }[]).map((p) => [p.id, p]),
   );
@@ -32,7 +40,8 @@ export default async function PenggunaPage({ searchParams }: PageProps<"/admin/p
       <div>
         <h1 className="text-2xl font-bold text-brand-900">Pengguna</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Peran Guru BK dan admin hanya ditetapkan di sini oleh admin. Menonaktifkan akun langsung mencabut akses
+          Peran Guru BK dan admin hanya ditetapkan di sini oleh admin. Peran CMS (Editor: menulis &amp; mengirim
+          berita; Admin Website: menyetujui &amp; menerbitkan) dapat diberikan kepada akun aktif, mis. guru humas. Menonaktifkan akun langsung mencabut akses
           ke fitur privat.
         </p>
       </div>
@@ -60,6 +69,23 @@ export default async function PenggunaPage({ searchParams }: PageProps<"/admin/p
                     {p?.role ? ROLE_LABEL[p.role] : "Tanpa peran"}
                     <br />
                     <span className="text-slate-500">{p ? STATUS_LABEL[p.status] : "—"}</span>
+                    {p?.status === "active" && p.role !== "admin" && (
+                      <ActionForm action={setStaffRolesAction} submitLabel="Simpan peran staf" className="mt-2 flex flex-wrap items-center gap-3 text-xs" submitClassName="btn-secondary !px-2 !py-1 text-xs">
+                        <input type="hidden" name="userId" value={u.id} />
+                        <span className="text-slate-500">Peran staf:</span>
+                        <label className="flex items-center gap-1">
+                          <input type="checkbox" name="staffRoles" value="editor" defaultChecked={staffById.get(u.id)?.has("editor")} /> Editor
+                        </label>
+                        <label className="flex items-center gap-1">
+                          <input type="checkbox" name="staffRoles" value="admin_website" defaultChecked={staffById.get(u.id)?.has("admin_website")} /> Admin Website
+                        </label>
+                        {p.role !== "siswa" && (
+                          <label className="flex items-center gap-1">
+                            <input type="checkbox" name="staffRoles" value="administrasi" defaultChecked={staffById.get(u.id)?.has("administrasi")} /> Petugas Administrasi
+                          </label>
+                        )}
+                      </ActionForm>
+                    )}
                     {p?.role === "siswa" && (
                       <ActionForm action={setStudentClassAction} submitLabel="Simpan kelas" className="mt-2 flex items-center gap-2" submitClassName="btn-secondary !px-2 !py-1 text-xs">
                         <input type="hidden" name="userId" value={u.id} />

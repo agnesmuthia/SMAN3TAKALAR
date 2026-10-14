@@ -66,10 +66,11 @@ kampanye; sisanya dilanjutkan oleh:
 - penjadwal yang memanggil `GET /api/cron/newsletter` dengan header
   `Authorization: Bearer <CRON_SECRET>`.
 
-`vercel.json` menjadwalkan sekali sehari (batas paket Hobby Vercel). Untuk daftar
-pelanggan besar, gunakan paket yang mengizinkan cron lebih sering atau layanan cron
-eksternal setiap 5–10 menit dengan header yang sama. Endpoint yang sama menjalankan
-pembersihan retensi (`newsletter_purge_stale`).
+Di Hostinger, gunakan workflow GitHub Actions `.github/workflows/cron.yml` (tiap 30
+menit, aktif setelah `CRON_URL` & `CRON_SECRET` diisi), cron hPanel, atau layanan cron
+eksternal; lihat `PANDUAN_DEPLOYMENT_HOSTINGER.md` §7. `vercel.json` hanya berlaku bila
+di-hosting di Vercel (sekali sehari pada paket Hobby). Endpoint yang sama menjalankan
+pembersihan retensi (`newsletter_purge_stale`, `school_purge_stale`).
 
 ## 4. Alur data
 

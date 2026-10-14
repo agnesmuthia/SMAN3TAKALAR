@@ -34,13 +34,28 @@ export async function listAnnouncements(ctx: AuthContext & { user: { id: string 
   return rows.map((r) => ({ ...r, read: readIds.has(r.id) }));
 }
 
+// Hanya semester aktif (plus jadwal lama tanpa semester). Bila belum ada
+// semester aktif, semua jadwal yang boleh dibaca ditampilkan.
 export async function listSchedule(ctx: AuthContext): Promise<ScheduleEntry[]> {
-  const { data } = await ctx.supabase
+  const { data: active } = await ctx.supabase.from("semesters").select("id").eq("is_active", true).maybeSingle<{ id: string }>();
+  let query = ctx.supabase
     .from("schedule_entries")
     .select("id, class_name, day_of_week, start_time, end_time, subject, room, teacher_id")
     .order("day_of_week")
     .order("start_time");
+  if (active) query = query.or(`semester_id.is.null,semester_id.eq.${active.id}`);
+  const { data } = await query;
   return (data ?? []) as ScheduleEntry[];
+}
+
+export async function activeSemesterName(ctx: AuthContext): Promise<string | null> {
+  const { data } = await ctx.supabase
+    .from("semesters")
+    .select("term, year:academic_year_id (name)")
+    .eq("is_active", true)
+    .maybeSingle<{ term: number; year: { name: string } | null }>();
+  if (!data) return null;
+  return `${data.year?.name ?? ""} · Semester ${data.term === 1 ? "Ganjil" : "Genap"}`;
 }
 
 export type Assignment = {
