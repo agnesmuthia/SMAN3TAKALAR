@@ -5,10 +5,8 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { assertAdmin } from "@/lib/auth/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { slugify } from "@/lib/slug";
 import {
   approveAndStartCampaign,
-  handleNewsPublished,
   retryFailedDeliveries,
   runCampaignBatch,
 } from "@/lib/newsletter/service";
@@ -87,103 +85,6 @@ export async function setUserAccessAction(_prev: State, formData: FormData): Pro
   }
   revalidatePath("/admin/pengguna");
   return ok("Akses pengguna diperbarui.");
-}
-
-// -----------------------------------------------------------------------------
-// Berita
-// -----------------------------------------------------------------------------
-
-const newsSchema = z.object({
-  id: z.uuid().optional(),
-  title: z.string().trim().min(3, "Judul minimal 3 karakter.").max(200),
-  slug: z.string().trim().max(120).optional(),
-  excerpt: z.string().trim().max(400, "Ringkasan maksimal 400 karakter."),
-  content: z.string().max(50000),
-  coverImageUrl: z
-    .string()
-    .trim()
-    .max(1000)
-    .refine((v) => v === "" || /^https:\/\//.test(v), "URL gambar harus diawali https://"),
-  status: z.enum(["draft", "published", "archived"]),
-  visibility: z.enum(["public", "internal"]),
-  newsletterEligible: z.boolean(),
-});
-
-export async function saveNewsAction(_prev: State, formData: FormData): Promise<State> {
-  const ctx = await guard();
-  if (!ctx) return fail("Akses ditolak.");
-  const parsed = newsSchema.safeParse({
-    id: formData.get("id") || undefined,
-    title: formData.get("title") ?? "",
-    slug: formData.get("slug") || undefined,
-    excerpt: formData.get("excerpt") ?? "",
-    content: formData.get("content") ?? "",
-    coverImageUrl: formData.get("coverImageUrl") ?? "",
-    status: formData.get("status"),
-    visibility: formData.get("visibility"),
-    newsletterEligible: formData.get("newsletterEligible") === "on",
-  });
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Data tidak valid.");
-  const v = parsed.data;
-  const slug = slugify(v.slug || v.title);
-  if (!slug) return fail("Slug tidak valid.");
-
-  let previousStatus: string | null = null;
-  let publishedAt: string | null = null;
-  if (v.id) {
-    const { data: existing } = await ctx.supabase
-      .from("news")
-      .select("status, published_at")
-      .eq("id", v.id)
-      .maybeSingle<{ status: string; published_at: string | null }>();
-    if (!existing) return fail("Berita tidak ditemukan.");
-    previousStatus = existing.status;
-    publishedAt = existing.published_at;
-  }
-  if (v.status === "published" && !publishedAt) publishedAt = new Date().toISOString();
-
-  const row = {
-    title: v.title,
-    slug,
-    excerpt: v.excerpt,
-    content: v.content,
-    cover_image_url: v.coverImageUrl || null,
-    status: v.status,
-    visibility: v.visibility,
-    newsletter_eligible: v.newsletterEligible,
-    published_at: publishedAt,
-  };
-
-  const result = v.id
-    ? await ctx.supabase.from("news").update(row).eq("id", v.id).select("id").single<{ id: string }>()
-    : await ctx.supabase.from("news").insert({ ...row, author_id: ctx.user.id }).select("id").single<{ id: string }>();
-  if (result.error || !result.data) {
-    if (result.error?.code === "23505") return fail("Slug sudah dipakai berita lain.");
-    return fail("Berita gagal disimpan.");
-  }
-
-  let notice = "";
-  if (v.status === "published" && previousStatus !== "published") {
-    const autoError = await handleNewsPublished(result.data.id, ctx.user.id);
-    if (autoError) notice = ` ${autoError}`;
-  }
-
-  revalidatePath("/admin/berita");
-  revalidatePath("/berita");
-  revalidatePath("/");
-  if (!v.id) redirect(`/admin/berita/${result.data.id}?disimpan=1`);
-  return ok(`Berita disimpan.${notice}`);
-}
-
-export async function deleteNewsAction(_prev: State, formData: FormData): Promise<State> {
-  const ctx = await guard();
-  if (!ctx) return fail("Akses ditolak.");
-  const id = z.uuid().safeParse(formData.get("id"));
-  if (!id.success) return fail("Data tidak valid.");
-  const { error } = await ctx.supabase.from("news").delete().eq("id", id.data);
-  if (error) return fail("Berita tidak dapat dihapus (mungkin sudah dipakai di kampanye). Arsipkan saja.");
-  revalidatePath("/admin/berita");
-  redirect("/admin/berita");
 }
 
 // -----------------------------------------------------------------------------
@@ -526,4 +427,19 @@ export async function setStudentClassAction(_prev: State, formData: FormData): P
   if (error) return fail("Kelas gagal diperbarui (pastikan pengguna adalah siswa).");
   revalidatePath("/admin/pengguna");
   return ok("Kelas diperbarui.");
+}
+
+export async function setStaffRolesAction(_prev: State, formData: FormData): Promise<State> {
+  const ctx = await guard();
+  if (!ctx) return fail("Akses ditolak.");
+  const userId = z.uuid().safeParse(formData.get("userId"));
+  if (!userId.success) return fail("Data tidak valid.");
+  const roles = formData.getAll("staffRoles").map(String).filter((r) => r === "admin_website" || r === "editor");
+  const { error } = await ctx.supabase.rpc("admin_set_staff_roles", { p_user_id: userId.data, p_roles: roles });
+  if (error) {
+    if (error.message.includes("profile_not_active")) return fail("Peran staf hanya untuk akun aktif.");
+    return fail("Peran staf gagal disimpan.");
+  }
+  revalidatePath("/admin/pengguna");
+  return ok("Peran staf disimpan.");
 }

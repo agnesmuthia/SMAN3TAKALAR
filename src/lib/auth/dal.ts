@@ -89,3 +89,60 @@ export async function assertAdmin(): Promise<AuthContext & { user: User; profile
   }
   return ctx as AuthContext & { user: User; profile: Profile };
 }
+
+// -----------------------------------------------------------------------------
+// Akses staf CMS (Super Admin = role admin; Admin Website; Editor)
+// -----------------------------------------------------------------------------
+
+export type StaffRole = "admin_website" | "editor";
+export type StaffAccess = {
+  isSuperAdmin: boolean;
+  roles: StaffRole[];
+  canPublish: boolean;
+  canWrite: boolean;
+};
+
+const NO_ACCESS: StaffAccess = { isSuperAdmin: false, roles: [], canPublish: false, canWrite: false };
+
+export const getStaffAccess = cache(async (): Promise<StaffAccess> => {
+  const ctx = await getAuthContext();
+  if (!ctx?.user || ctx.profile?.status !== "active") return NO_ACCESS;
+  const isSuperAdmin = ctx.profile.role === "admin";
+  const { data } = await ctx.supabase.from("staff_roles").select("role").eq("user_id", ctx.user.id);
+  const roles = ((data ?? []) as { role: StaffRole }[]).map((r) => r.role);
+  const canPublish = isSuperAdmin || roles.includes("admin_website");
+  return { isSuperAdmin, roles, canPublish, canWrite: canPublish || roles.includes("editor") };
+});
+
+type StaffContext = AuthContext & { user: User; profile: Profile & { role: UserRole } } & { access: StaffAccess };
+
+// Area /admin: Super Admin atau pemilik peran staf apa pun.
+export async function requireAdminArea(nextPath: string): Promise<StaffContext> {
+  const ctx = await requireRole("any", nextPath);
+  const access = await getStaffAccess();
+  if (!access.isSuperAdmin && !access.canWrite) {
+    redirect(`${homeForRole(ctx.profile.role)}?error=akses_ditolak`);
+  }
+  return { ...ctx, access };
+}
+
+export async function requireNewsWriter(nextPath: string): Promise<StaffContext> {
+  const ctx = await requireAdminArea(nextPath);
+  if (!ctx.access.canWrite) redirect("/admin?error=akses_ditolak");
+  return ctx;
+}
+
+export async function requireNewsPublisher(nextPath: string): Promise<StaffContext> {
+  const ctx = await requireAdminArea(nextPath);
+  if (!ctx.access.canPublish) redirect("/admin?error=akses_ditolak");
+  return ctx;
+}
+
+// Untuk server action: kembalikan null (bukan redirect) bila tidak berhak.
+export async function newsActionContext(): Promise<(AuthContext & { user: User; profile: Profile; access: StaffAccess }) | null> {
+  const ctx = await getAuthContext();
+  if (!ctx?.user || ctx.profile?.status !== "active") return null;
+  const access = await getStaffAccess();
+  if (!access.canWrite) return null;
+  return { ...(ctx as AuthContext & { user: User; profile: Profile }), access };
+}

@@ -103,7 +103,7 @@ Semua migrasi bersifat **aditif** (menambah tabel/kolom), tidak menghapus data.
 | Tahap | Isi | Risiko utama |
 |-------|-----|--------------|
 | 2 ✅ | Design system Modern Academic, beranda & portal berita (pencarian, berita utama, pagination, artikel). Lihat `docs/DESIGN_SYSTEM.md` | Logo/foto resmi belum ada → monogram & pola netral; kategori menyusul di Tahap 3 (butuh skema) |
-| 3 | CMS berita penuh: Supabase Storage untuk gambar, rich-text editor dengan sanitasi HTML, kategori/tag, alur draf → menunggu persetujuan → terjadwal/terbit → arsip, riwayat revisi, peran Editor & Admin Website | XSS dari rich-text (wajib sanitasi di server); migrasi peran harus kompatibel dengan akun lama |
+| 3 ✅ | CMS berita penuh: Supabase Storage untuk gambar, rich-text editor dengan sanitasi HTML, kategori/tag, alur draf → menunggu persetujuan → terjadwal/terbit → arsip, riwayat revisi, peran Editor & Admin Website | XSS dari rich-text (wajib sanitasi di server); migrasi peran harus kompatibel dengan akun lama |
 | 4 | Halaman profil via CMS, galeri, prestasi, kalender | Ukuran unggahan & kuota Storage |
 | 5 | Tahun ajaran/semester, impor jadwal CSV/XLSX (pratinjau, validasi duplikat, laporan per baris, tanpa menimpa data lama), arsip SK PDF, perpustakaan digital | Parsing XLSX di server; SK harus diverifikasi manusia |
 | **RR** | **Ruang Rasa** (lihat bagian 9): menunggu keputusan kebijakan sekolah | Data sangat sensitif (anak, kekerasan); salah desain berdampak serius |

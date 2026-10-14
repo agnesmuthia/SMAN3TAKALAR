@@ -34,16 +34,18 @@ Resend (email konfirmasi & buletin)   ← webhook status ke /api/newsletter/webh
 
 ## Peran (saat ini)
 
-`admin`, `guru`, `siswa`, `guru_bk`, ditambah status `pending`/`active`/`disabled`.
-Detail: `docs/peran-dan-verifikasi.md`. Peran tambahan dari master prompt (Super Admin,
-Editor, Petugas Administrasi, Petugas Teknis) **belum diimplementasikan** (rencana Tahap 3).
+Peran dasar `admin` (= Super Admin), `guru`, `siswa`, `guru_bk`, ditambah status
+`pending`/`active`/`disabled`. Peran staf CMS di tabel `staff_roles`: `admin_website`
+(menerbitkan) dan `editor` (menulis & mengirim untuk persetujuan), berlaku di atas peran
+dasar. Detail: `docs/peran-dan-verifikasi.md`, `docs/PANDUAN_ADMIN_WEBSITE.md`.
+Petugas Administrasi dan Petugas Teknis belum diimplementasikan (Tahap 5–6).
 
 ## Modul & tabel
 
 | Modul | Tabel | Kode |
 |-------|-------|------|
 | Akun & peran | `profiles`, `verification_requests`, `school_roster`, `admin_audit_log` | `src/lib/auth`, `src/app/akun`, `src/app/admin/verifikasi`, `src/app/admin/pengguna` |
-| Berita publik | `news` | `src/app/berita`, `src/app/admin/berita` |
+| Berita & CMS | `news`, `news_categories`, `news_tags`, `news_tag_links`, `news_revisions`, `staff_roles`; Storage bucket `news-images` | `src/app/berita`, `src/app/admin/berita`, `src/lib/cms`, `src/components/cms` |
 | Langganan berita | `newsletter_subscribers`, `newsletter_confirmation_tokens`, `newsletter_suppression_records`, `newsletter_templates`, `newsletter_campaigns`, `newsletter_campaign_items`, `newsletter_deliveries`, `newsletter_delivery_events`, `rate_limit_hits` | `src/lib/newsletter`, `src/app/langganan`, `src/app/admin/langganan` |
 | Dashboard internal | `announcements`, `announcement_reads`, `schedule_entries`, `assignments` | `src/app/dashboard`, `src/app/admin/pengumuman`, `src/app/admin/jadwal` |
 | Pengaturan | `app_settings` | `src/app/admin/pengaturan` |
@@ -67,6 +69,6 @@ docs/           dokumentasi
 
 ## Hal yang belum ada
 
-Penyimpanan file (Supabase Storage), rich-text editor, CMS halaman, galeri, kalender,
+CMS halaman, galeri, kalender,
 tahun ajaran & impor, arsip SK, perpustakaan digital, Ruang Rasa, konfigurasi Hostinger,
 prosedur backup. Lihat `docs/AUDIT_DAN_RENCANA.md`.

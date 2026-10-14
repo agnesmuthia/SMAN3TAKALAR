@@ -10,6 +10,11 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  experimental: {
+    // Unggahan gambar berita maks. 5 MB (divalidasi di server) + isi berita
+    // + overhead multipart. Bawaan Next.js hanya 1 MB.
+    serverActions: { bodySizeLimit: "6mb" },
+  },
   turbopack: {
     rules: {
       "*.css": {

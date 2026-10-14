@@ -22,6 +22,16 @@ Aturan yang ditegakkan di database (bukan hanya di tampilan):
 - Akun `disabled` kehilangan semua akses RLS seketika, sesi Supabase Auth diblokir
   (`ban_duration`), dan halaman privat mengeluarkannya.
 
+### Peran staf CMS (tambahan)
+
+| Peran staf | Diberikan oleh | Kewenangan |
+|------------|----------------|------------|
+| Editor | Super Admin di `/admin/pengguna` | Menulis berita sendiri, mengirim untuk persetujuan |
+| Admin Website | Super Admin di `/admin/pengguna` | Semua berita: menyetujui, menerbitkan/menjadwalkan, mengarsipkan, kategori |
+
+Peran staf hanya berlaku untuk akun **aktif** dan otomatis tidak berlaku bila akun
+dinonaktifkan. Pemberiannya dicatat di `admin_audit_log`.
+
 ## Alur verifikasi
 
 1. Pengguna mendaftar (email atau Google) → `/akun/lengkapi-profil`.

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getAuthContext } from "@/lib/auth/dal";
+import { getAuthContext, getStaffAccess } from "@/lib/auth/dal";
 import { homeForRole } from "@/lib/auth/routing";
 import { siteConfig } from "@/lib/site";
 import { SchoolMark } from "./school-mark";
@@ -15,6 +15,9 @@ export async function SiteHeader() {
   const role = ctx?.profile?.status === "active" ? ctx.profile.role : null;
   const accountHref = role ? homeForRole(role) : "/akun";
   const accountLabel = role ? "Dashboard" : "Akun";
+  // Guru yang juga Editor/Admin Website mendapat pintasan ke CMS.
+  const access = signedIn ? await getStaffAccess() : null;
+  const showCms = Boolean(access?.canWrite && role !== "admin");
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75">
@@ -36,6 +39,7 @@ export async function SiteHeader() {
           ))}
           {signedIn ? (
             <>
+              {showCms && <Link href="/admin/berita" className="rounded-lg px-3 py-2 text-slate-700 transition hover:bg-surface hover:text-navy-900">CMS Berita</Link>}
               <Link href={accountHref} className="rounded-lg px-3 py-2 text-slate-700 transition hover:bg-surface hover:text-navy-900">{accountLabel}</Link>
               <form action="/auth/keluar" method="post">
                 <button type="submit" className="rounded-lg px-3 py-2 text-slate-700 transition hover:bg-surface hover:text-navy-900">Keluar</button>
@@ -62,6 +66,7 @@ export async function SiteHeader() {
             <div className="my-2 h-px bg-slate-100" />
             {signedIn ? (
               <>
+                {showCms && <Link href="/admin/berita" className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-surface">CMS Berita</Link>}
                 <Link href={accountHref} className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-surface">{accountLabel}</Link>
                 <form action="/auth/keluar" method="post">
                   <button type="submit" className="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-surface">Keluar</button>

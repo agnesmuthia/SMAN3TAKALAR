@@ -16,6 +16,12 @@ function Cover({ news, className }: { news: PublicNews; className: string }) {
 function Meta({ news, compact = false }: { news: PublicNews; compact?: boolean }) {
   return (
     <p className="flex flex-wrap items-center gap-x-2 text-xs text-slate-500">
+      {news.category && !compact && (
+        <>
+          <span className="font-semibold uppercase tracking-wide text-teal-700">{news.category.name}</span>
+          <span aria-hidden>•</span>
+        </>
+      )}
       <time dateTime={news.published_at}>{formatTanggal(news.published_at)}</time>
       {!compact && (
         <>

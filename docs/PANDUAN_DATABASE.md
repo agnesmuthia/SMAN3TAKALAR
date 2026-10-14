@@ -40,7 +40,10 @@ dengan peran seminimal mungkin), terpisah dari akun admin website.
 | `profiles` | Peran & status akun | **Tidak**; gunakan `/admin/pengguna` |
 | `verification_requests` | Pengajuan guru/siswa (memuat NIP/NIS) | Tidak; gunakan `/admin/verifikasi` |
 | `school_roster` | Data induk NIP/NIS | Impor CSV oleh petugas berwenang |
-| `news` | Berita | Tidak; gunakan `/admin/berita` |
+| `news` | Berita (isi HTML yang sudah disanitasi di `content_html`) | Tidak; gunakan `/admin/berita` |
+| `news_categories`, `news_tags`, `news_tag_links` | Kategori & tag berita | Tidak; gunakan CMS |
+| `news_revisions` | Riwayat perubahan berita (otomatis) | Hanya dibaca |
+| `staff_roles` | Peran CMS (Editor, Admin Website) | Tidak; gunakan `/admin/pengguna` |
 | `announcements`, `announcement_reads` | Pengumuman internal | Tidak; gunakan `/admin/pengumuman` |
 | `schedule_entries` | Jadwal pelajaran | Tidak; gunakan `/admin/jadwal` |
 | `assignments` | Tugas & materi guru | Tidak; dikelola guru |
@@ -49,7 +52,17 @@ dengan peran seminimal mungkin), terpisah dari akun admin website.
 | `admin_audit_log` | Catatan tindakan admin | Hanya dibaca |
 | `rate_limit_hits` | Anti-spam (sementara) | Dibersihkan otomatis |
 
-## 4. Migrasi
+## 4. Penyimpanan file (Supabase Storage)
+
+- Bucket `news-images` menyimpan gambar berita (publik untuk dibaca lewat URL, maks. 5 MB,
+  hanya JPG/PNG/WebP). Lokasi: **Storage → news-images**.
+- Unggahan hanya lewat CMS (server memeriksa izin dan isi file). Tidak ada policy tulis
+  untuk browser.
+- Nama file acak per tahun/bulan (mis. `2026/10/<acak>.jpg`).
+- Menghapus berita **tidak** otomatis menghapus file gambarnya; pembersihan file yatim
+  dilakukan petugas teknis secara berkala (prosedur di panduan backup, Tahap 7).
+
+## 5. Migrasi
 
 - Semua perubahan struktur ada di `supabase/migrations/` dan masuk lewat GitHub (bukan
   diedit di Table Editor).
@@ -58,7 +71,7 @@ dengan peran seminimal mungkin), terpisah dari akun admin website.
 - Sebelum menerapkan migrasi ke produksi: pastikan ada backup terbaru (lihat panduan
   backup, menyusul di Tahap 7).
 
-## 5. Larangan
+## 6. Larangan
 
 - Jangan menjalankan `DROP`, `TRUNCATE`, `DELETE` tanpa `WHERE`, atau mematikan RLS.
 - Jangan mengubah kolom `role`/`status` langsung, kecuali prosedur admin pertama.

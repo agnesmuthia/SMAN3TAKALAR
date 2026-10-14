@@ -3,8 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { NewsCard } from "@/components/news-card";
 import { SubscribeForm } from "@/components/subscribe-form";
-import { getPublicNewsBySlug, listRelatedNews } from "@/lib/news";
-import { paragraphs, readingMinutes } from "@/lib/news-utils";
+import { ArticleBody } from "@/components/article-body";
+import { getPublicNewsBySlug, listRelatedNews, tagsForNews } from "@/lib/news";
+import { readingMinutes } from "@/lib/news-utils";
 import { absoluteUrl, formatTanggal } from "@/lib/site";
 
 export async function generateMetadata({ params }: PageProps<"/berita/[slug]">): Promise<Metadata> {
@@ -29,7 +30,7 @@ export default async function BeritaDetailPage({ params }: PageProps<"/berita/[s
   const { slug } = await params;
   const news = await getPublicNewsBySlug(slug);
   if (!news) notFound();
-  const related = await listRelatedNews(news.id, 3);
+  const [related, tags] = await Promise.all([listRelatedNews(news.id, news.category_id, 3), tagsForNews(news.id)]);
 
   const url = absoluteUrl(`/berita/${news.slug}`);
   const shareText = encodeURIComponent(`${news.title} ${url}`);
@@ -50,6 +51,12 @@ export default async function BeritaDetailPage({ params }: PageProps<"/berita/[s
                 <li><Link href="/" className="hover:text-teal-700">Beranda</Link></li>
                 <li aria-hidden>/</li>
                 <li><Link href="/berita" className="hover:text-teal-700">Berita</Link></li>
+                {news.category && (
+                  <>
+                    <li aria-hidden>/</li>
+                    <li><Link href={`/berita?kategori=${news.category.slug}`} className="hover:text-teal-700">{news.category.name}</Link></li>
+                  </>
+                )}
               </ol>
             </nav>
             <h1 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight text-navy-900 sm:text-4xl lg:text-[2.75rem]">
@@ -72,11 +79,17 @@ export default async function BeritaDetailPage({ params }: PageProps<"/berita/[s
         )}
 
         <div className="mx-auto max-w-3xl px-4 py-10">
-          <div className="prose-berita">
-            {paragraphs(news.content).map((p, i) => (
-              <p key={i} className="whitespace-pre-line">{p}</p>
-            ))}
-          </div>
+          <ArticleBody html={news.content_html ?? null} text={news.content} />
+
+          {tags.length > 0 && (
+            <ul aria-label="Tag" className="mt-8 flex flex-wrap gap-2">
+              {tags.map((t) => (
+                <li key={t.id}>
+                  <Link href={`/berita?tag=${t.slug}`} className="rounded-full bg-teal-50 px-3 py-1 text-sm font-medium text-teal-800 hover:bg-teal-100">#{t.name}</Link>
+                </li>
+              ))}
+            </ul>
+          )}
 
           <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-6 text-sm">
             <span className="mr-1 font-semibold text-navy-900">Bagikan:</span>

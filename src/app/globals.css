@@ -156,3 +156,40 @@ body {
 body:has(.subscribe-inline) .footer-subscribe {
   display: none;
 }
+
+/* Elemen isi artikel dari editor teks kaya. */
+.article-content h2 {
+  @apply mt-10 mb-4 text-2xl font-bold tracking-tight text-navy-900;
+}
+.article-content h3 {
+  @apply mt-8 mb-3 text-xl font-bold text-navy-900;
+}
+.article-content h4 {
+  @apply mt-6 mb-2 text-lg font-semibold text-navy-900;
+}
+.article-content ul {
+  @apply mb-5 list-disc space-y-1.5 pl-6;
+}
+.article-content ol {
+  @apply mb-5 list-decimal space-y-1.5 pl-6;
+}
+.article-content blockquote {
+  @apply my-6 border-l-4 border-gold-500 bg-white py-3 pl-5 pr-4 italic text-slate-700;
+}
+.article-content a {
+  @apply font-medium text-teal-700 underline underline-offset-2 hover:text-teal-800;
+}
+.article-content img {
+  @apply my-6 h-auto w-full rounded-xl;
+}
+.article-content hr {
+  @apply my-8 border-slate-200;
+}
+.article-content > :first-child {
+  margin-top: 0;
+}
+/* Editor memakai gaya yang sama agar tampilan sesuai hasil terbit. */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  @apply pointer-events-none float-left h-0 text-slate-400;
+}
