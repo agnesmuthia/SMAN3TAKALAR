@@ -50,6 +50,28 @@ Supabase (**Table Editor → school_roster → Import CSV**) dengan kolom
 `kind` (`guru`/`siswa`), `identifier`, `full_name`, `class_name`. Hapus file CSV
 setelah impor. Tabel ini hanya dapat dibaca admin (RLS).
 
+## Dashboard per peran
+
+| Peran | Halaman | Isi |
+|-------|---------|-----|
+| Siswa | `/dashboard/siswa`, `/jadwal`, `/tugas` | Jadwal kelasnya, tugas & materi **terbit** untuk kelasnya, pengumuman |
+| Guru | `/dashboard/guru`, `/jadwal`, `/tugas` | Jadwal mengajarnya, kelola tugas & materi **miliknya**, pengumuman |
+| Guru BK | `/dashboard/bk` | Kerangka + pengumuman. **Belum ada data konseling.** |
+| Semua anggota aktif | `/dashboard/pengumuman` | Pengumuman yang ditujukan ke perannya, penanda sudah dibaca |
+| Admin | `/admin/pengumuman`, `/admin/jadwal`, `/admin/pengguna` | Kelola pengumuman, jadwal, dan kelas siswa |
+
+Catatan operasional:
+
+- **Kelas siswa** disalin dari pengajuan verifikasi saat admin menyetujui; admin dapat mengubahnya
+  di `/admin/pengguna`. Jadwal dan tugas dicocokkan dengan **teks kelas yang sama persis**
+  (mis. `X-1`), jadi gunakan penulisan yang konsisten.
+- **Tugas & materi** hanya berisi teks dan tautan https (belum ada unggah file). Jangan
+  menaruh data pribadi siswa di dalamnya.
+- Pengumuman internal, jadwal, dan tugas tidak punya hubungan dengan modul berita/buletin
+  email; isinya tidak pernah masuk buletin.
+- Seluruh pembatasan baca/tulis ditegakkan oleh RLS (lihat `supabase/migrations/20261015000100_dashboard_peran.sql`
+  dan `supabase/tests/11_dashboard.sql`).
+
 ## Modul yang belum dibangun
 
 Ruang Rasa (pelaporan/konseling) dan dokumen SK belum dibuat pada tahap ini. Saat

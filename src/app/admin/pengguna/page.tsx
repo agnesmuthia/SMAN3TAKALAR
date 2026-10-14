@@ -4,7 +4,7 @@ import { ActionForm } from "@/components/action-form";
 import { requireRole } from "@/lib/auth/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ROLE_LABEL, STATUS_LABEL, type AccountStatus, type UserRole } from "@/lib/auth/types";
-import { setUserAccessAction } from "../actions";
+import { setStudentClassAction, setUserAccessAction } from "../actions";
 
 export const metadata: Metadata = { title: "Pengguna" };
 
@@ -21,10 +21,10 @@ export default async function PenggunaPage({ searchParams }: PageProps<"/admin/p
   const users = list?.users ?? [];
   const ids = users.map((u) => u.id);
   const { data: profiles } = ids.length
-    ? await ctx.supabase.from("profiles").select("id, full_name, role, status").in("id", ids)
+    ? await ctx.supabase.from("profiles").select("id, full_name, role, status, class_name").in("id", ids)
     : { data: [] };
   const byId = new Map(
-    ((profiles ?? []) as { id: string; full_name: string | null; role: UserRole | null; status: AccountStatus }[]).map((p) => [p.id, p]),
+    ((profiles ?? []) as { id: string; full_name: string | null; role: UserRole | null; status: AccountStatus; class_name: string | null }[]).map((p) => [p.id, p]),
   );
 
   return (
@@ -60,6 +60,13 @@ export default async function PenggunaPage({ searchParams }: PageProps<"/admin/p
                     {p?.role ? ROLE_LABEL[p.role] : "Tanpa peran"}
                     <br />
                     <span className="text-slate-500">{p ? STATUS_LABEL[p.status] : "—"}</span>
+                    {p?.role === "siswa" && (
+                      <ActionForm action={setStudentClassAction} submitLabel="Simpan kelas" className="mt-2 flex items-center gap-2" submitClassName="btn-secondary !px-2 !py-1 text-xs">
+                        <input type="hidden" name="userId" value={u.id} />
+                        <label className="sr-only" htmlFor={`kelas-${u.id}`}>Kelas</label>
+                        <input id={`kelas-${u.id}`} name="className" defaultValue={p.class_name ?? ""} maxLength={40} placeholder="Kelas" className="input !w-24 !py-1" />
+                      </ActionForm>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <ActionForm action={setUserAccessAction} submitLabel="Simpan" className="flex flex-wrap items-center gap-2" submitClassName="btn-secondary">

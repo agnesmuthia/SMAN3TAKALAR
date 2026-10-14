@@ -17,10 +17,11 @@ Seluruh panduan berbahasa Indonesia ada di folder [`docs/`](docs/).
 |-------|--------|
 | Halaman publik (beranda, berita, kebijakan privasi) | Berfungsi (butuh proyek Supabase untuk data) |
 | Skema database, RLS, fungsi peran & langganan | Selesai, diuji di PostgreSQL lokal (`npm run test:db`) |
-| Login email, verifikasi peran, dashboard per peran, admin | Kode selesai; perlu proyek Supabase |
+| Login email, verifikasi peran, admin | Kode selesai; perlu proyek Supabase |
+| Dashboard guru / siswa / BK | Pengumuman internal, jadwal pelajaran, tugas & materi (teks + tautan); BK baru kerangka. Diuji di level database (RLS) dan unit; **belum diuji end-to-end dengan Supabase sungguhan** |
 | **Login Google** | Kode selesai; **belum aktif** sampai OAuth Client Google dibuat dan provider Supabase dikonfigurasi ([panduan](docs/google-oauth.md)) |
 | **Pengiriman email** (konfirmasi & buletin) | Kode selesai; **belum aktif** sampai domain pengirim terverifikasi dan Resend dikonfigurasi ([panduan](docs/langganan-berita-email.md)) |
-| Ruang Rasa, dokumen SK | Belum dibangun (di luar tahap ini) |
+| Ruang Rasa, dokumen SK, unggah file tugas | Belum dibangun |
 
 ## Menjalankan secara lokal
 
@@ -72,8 +73,8 @@ src/
     masuk/ daftar/        Autentikasi (email + Google)
     auth/callback|confirm|keluar   Callback OAuth, verifikasi email, logout
     akun/                 Pelengkapan profil, menunggu verifikasi, penautan Google
-    dashboard/            Dashboard guru / siswa / BK
-    admin/                Verifikasi, pengguna, berita, Langganan Berita, pengaturan
+    dashboard/            Dashboard guru / siswa / BK, pengumuman
+    admin/                Verifikasi, pengguna, berita, pengumuman, jadwal, Langganan Berita, pengaturan
     langganan/            Konfirmasi & berhenti berlangganan (publik)
     api/newsletter/       Unsubscribe sekali klik, webhook penyedia email
     api/cron/newsletter   Pengiriman bertahap & retensi

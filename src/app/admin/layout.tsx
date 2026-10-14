@@ -6,6 +6,8 @@ const NAV = [
   { href: "/admin/verifikasi", label: "Verifikasi" },
   { href: "/admin/pengguna", label: "Pengguna" },
   { href: "/admin/berita", label: "Berita" },
+  { href: "/admin/pengumuman", label: "Pengumuman" },
+  { href: "/admin/jadwal", label: "Jadwal" },
   { href: "/admin/langganan", label: "Langganan Berita" },
   { href: "/admin/pengaturan", label: "Pengaturan" },
 ];
