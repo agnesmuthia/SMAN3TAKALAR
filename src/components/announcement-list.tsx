@@ -3,7 +3,7 @@ import type { Announcement } from "@/lib/dashboard/data";
 import { formatTanggal } from "@/lib/site";
 import { markAnnouncementReadAction } from "@/app/dashboard/actions";
 
-const AUDIENCE_LABEL: Record<string, string> = { semua: "Semua", guru: "Guru", siswa: "Siswa", guru_bk: "Guru BK" };
+const AUDIENCE_LABEL: Record<string, string> = { publik: "Publik", semua: "Semua", guru: "Guru", siswa: "Siswa", guru_bk: "Guru BK" };
 
 export function AnnouncementList({ items, emptyText = "Belum ada pengumuman." }: { items: Announcement[]; emptyText?: string }) {
   if (items.length === 0) return <p className="text-sm text-slate-600">{emptyText}</p>;

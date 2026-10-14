@@ -5,14 +5,30 @@ import { storageImagePrefix } from "./sanitize";
 import { validateImage } from "./image";
 
 export const NEWS_IMAGE_BUCKET = "news-images";
+export const SITE_MEDIA_BUCKET = "site-media";
 
 export function newsImagePrefix(): string | null {
   return storageImagePrefix(process.env.NEXT_PUBLIC_SUPABASE_URL, NEWS_IMAGE_BUCKET);
 }
 
+export function siteMediaPrefix(): string | null {
+  return storageImagePrefix(process.env.NEXT_PUBLIC_SUPABASE_URL, SITE_MEDIA_BUCKET);
+}
+
+type UploadResult = { ok: true; url: string } | { ok: false; error: string };
+
 // Mengunggah gambar berita. WAJIB dipanggil setelah pemeriksaan can_write_news
 // (service role melewati RLS). Nama file acak; nama asli tidak disimpan.
-export async function uploadNewsImage(file: File): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+export async function uploadNewsImage(file: File): Promise<UploadResult> {
+  return uploadImage(NEWS_IMAGE_BUCKET, file);
+}
+
+// Gambar galeri/prestasi/program/logo/hero. WAJIB setelah cek can_publish_news.
+export async function uploadSiteImage(file: File): Promise<UploadResult> {
+  return uploadImage(SITE_MEDIA_BUCKET, file);
+}
+
+async function uploadImage(bucket: string, file: File): Promise<UploadResult> {
   if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Pilih file gambar." };
   const bytes = new Uint8Array(await file.arrayBuffer());
   const check = validateImage(bytes);
@@ -20,7 +36,7 @@ export async function uploadNewsImage(file: File): Promise<{ ok: true; url: stri
 
   const now = new Date();
   const path = `${now.getUTCFullYear()}/${String(now.getUTCMonth() + 1).padStart(2, "0")}/${randomUUID()}.${check.kind.ext}`;
-  const storage = createAdminClient().storage.from(NEWS_IMAGE_BUCKET);
+  const storage = createAdminClient().storage.from(bucket);
   const { error } = await storage.upload(path, bytes, { contentType: check.kind.mime, upsert: false, cacheControl: "31536000" });
   if (error) {
     console.error("[cms] unggah gambar gagal:", error.message);

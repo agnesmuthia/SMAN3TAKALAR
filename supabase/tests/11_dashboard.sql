@@ -117,8 +117,8 @@ select pg_temp.assert(
   pg_temp.count_as('authenticated', '00000000-0000-0000-0000-0000000000e1', 'select count(*) from public.announcements') = 0,
   'akun nonaktif tidak melihat pengumuman internal');
 select pg_temp.assert(
-  pg_temp.try_as('anon', null, 'select count(*) from public.announcements') like '42501%',
-  'pengunjung tanpa login tidak dapat membaca pengumuman');
+  pg_temp.count_as('anon', null, 'select count(*) from public.announcements') = 0,
+  'pengunjung tanpa login tidak dapat membaca pengumuman internal');
 select pg_temp.assert(
   pg_temp.count_as('authenticated', '00000000-0000-0000-0000-00000000000a', 'select count(*) from public.announcements') = 6,
   'admin melihat semua pengumuman termasuk draf');

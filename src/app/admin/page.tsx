@@ -4,7 +4,9 @@ import { Alert } from "@/components/alert";
 import { requireAdminArea } from "@/lib/auth/dal";
 import { authErrorMessage } from "@/lib/auth/messages";
 import { formatWaktuWita } from "@/lib/cms/time";
+import { todayInZone } from "@/lib/content/calendar";
 import { getEmailProviderStatus } from "@/lib/newsletter/service";
+import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Admin" };
 
@@ -38,6 +40,22 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
   }
   if ((returned.count ?? 0) > 0) {
     actions.push({ text: `${returned.count} berita dikembalikan dengan catatan dan perlu diperbaiki.`, href: "/admin/berita?status=draft" });
+  }
+
+  let contentStats: { label: string; value: number; href: string }[] = [];
+  if (ctx.access.canPublish) {
+    const [pages, albums, achievements, events] = await Promise.all([
+      db.from("site_pages").select("id", head).eq("is_published", true),
+      db.from("gallery_albums").select("id", head).eq("is_published", true),
+      db.from("achievements").select("id", head).eq("is_published", true),
+      db.from("calendar_events").select("id", head).eq("is_published", true).gte("ends_on", todayInZone(siteConfig.timeZone)),
+    ]);
+    contentStats = [
+      { label: "Halaman tampil", value: pages.count ?? 0, href: "/admin/halaman" },
+      { label: "Album galeri tampil", value: albums.count ?? 0, href: "/admin/galeri" },
+      { label: "Prestasi tampil", value: achievements.count ?? 0, href: "/admin/prestasi" },
+      { label: "Kegiatan mendatang", value: events.count ?? 0, href: "/admin/kalender" },
+    ];
   }
 
   let superStats: { label: string; value: number; href: string }[] = [];
@@ -113,6 +131,23 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {contentStats.length > 0 && (
+        <section>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-semibold text-navy-900">Konten situs</h2>
+            <Link href="/admin/profil-sekolah" className="text-sm text-teal-700 hover:underline">Ubah profil sekolah & kontak</Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {contentStats.map((s) => (
+              <Link key={s.label} href={s.href} className="card card-hover">
+                <p className="text-sm text-slate-500">{s.label}</p>
+                <p className="mt-1 text-3xl font-bold text-navy-900">{s.value}</p>
+              </Link>
+            ))}
+          </div>
         </section>
       )}
 

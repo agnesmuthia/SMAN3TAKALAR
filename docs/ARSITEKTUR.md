@@ -36,7 +36,7 @@ Resend (email konfirmasi & buletin)   ← webhook status ke /api/newsletter/webh
 
 Peran dasar `admin` (= Super Admin), `guru`, `siswa`, `guru_bk`, ditambah status
 `pending`/`active`/`disabled`. Peran staf CMS di tabel `staff_roles`: `admin_website`
-(menerbitkan) dan `editor` (menulis & mengirim untuk persetujuan), berlaku di atas peran
+(menerbitkan berita, mengelola konten situs & pengumuman) dan `editor` (menulis & mengirim untuk persetujuan), berlaku di atas peran
 dasar. Detail: `docs/peran-dan-verifikasi.md`, `docs/PANDUAN_ADMIN_WEBSITE.md`.
 Petugas Administrasi dan Petugas Teknis belum diimplementasikan (Tahap 5–6).
 
@@ -47,6 +47,7 @@ Petugas Administrasi dan Petugas Teknis belum diimplementasikan (Tahap 5–6).
 | Akun & peran | `profiles`, `verification_requests`, `school_roster`, `admin_audit_log` | `src/lib/auth`, `src/app/akun`, `src/app/admin/verifikasi`, `src/app/admin/pengguna` |
 | Berita & CMS | `news`, `news_categories`, `news_tags`, `news_tag_links`, `news_revisions`, `staff_roles`; Storage bucket `news-images` | `src/app/berita`, `src/app/admin/berita`, `src/lib/cms`, `src/components/cms` |
 | Langganan berita | `newsletter_subscribers`, `newsletter_confirmation_tokens`, `newsletter_suppression_records`, `newsletter_templates`, `newsletter_campaigns`, `newsletter_campaign_items`, `newsletter_deliveries`, `newsletter_delivery_events`, `rate_limit_hits` | `src/lib/newsletter`, `src/app/langganan`, `src/app/admin/langganan` |
+| Konten situs | `site_profile`, `site_pages`, `school_programs`, `gallery_albums`, `gallery_photos`, `achievements`, `calendar_events`; Storage bucket `site-media` | `src/app/{profil,galeri,prestasi,kalender,pengumuman}`, `src/app/admin/{profil-sekolah,halaman,program,galeri,prestasi,kalender}`, `src/app/admin/konten/actions.ts`, `src/lib/content` |
 | Dashboard internal | `announcements`, `announcement_reads`, `schedule_entries`, `assignments` | `src/app/dashboard`, `src/app/admin/pengumuman`, `src/app/admin/jadwal` |
 | Pengaturan | `app_settings` | `src/app/admin/pengaturan` |
 
@@ -69,6 +70,5 @@ docs/           dokumentasi
 
 ## Hal yang belum ada
 
-CMS halaman, galeri, kalender,
-tahun ajaran & impor, arsip SK, perpustakaan digital, Ruang Rasa, konfigurasi Hostinger,
+Tahun ajaran & impor, arsip SK, perpustakaan digital, Ruang Rasa, konfigurasi Hostinger,
 prosedur backup. Lihat `docs/AUDIT_DAN_RENCANA.md`.

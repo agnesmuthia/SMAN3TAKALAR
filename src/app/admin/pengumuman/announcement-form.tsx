@@ -14,13 +14,14 @@ export function AnnouncementForm({ values }: { values?: AnnouncementValues }) {
       <div>
         <label htmlFor="body" className="label">Isi</label>
         <textarea id="body" name="body" rows={6} maxLength={5000} defaultValue={values?.body} className="input" />
-        <p className="mt-1 text-xs text-slate-500">Hanya terlihat oleh warga sekolah yang login. Jangan memuat data pribadi atau data konseling siswa.</p>
+        <p className="mt-1 text-xs text-slate-500">Pengumuman &quot;Publik&quot; tampil di website untuk semua pengunjung; lainnya hanya untuk warga sekolah yang login. Jangan memuat data pribadi atau data konseling siswa.</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="audience" className="label">Ditujukan kepada</label>
           <select id="audience" name="audience" defaultValue={values?.audience ?? "semua"} className="input">
-            <option value="semua">Semua warga sekolah</option>
+            <option value="publik">Publik (semua pengunjung website)</option>
+            <option value="semua">Semua warga sekolah (perlu login)</option>
             <option value="guru">Guru</option>
             <option value="siswa">Siswa</option>
             <option value="guru_bk">Guru BK</option>

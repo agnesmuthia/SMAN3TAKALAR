@@ -33,6 +33,11 @@ export function formatTanggal(value: string | Date): string {
   }).format(typeof value === "string" ? new Date(value) : value);
 }
 
+// Tanggal kalender murni (YYYY-MM-DD) tanpa pergeseran zona waktu.
+export function formatTanggalSaja(isoDate: string): string {
+  return new Intl.DateTimeFormat("id-ID", { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${isoDate}T00:00:00Z`));
+}
+
 export function absoluteUrl(path: string): string {
   return `${siteConfig.url}${path.startsWith("/") ? path : `/${path}`}`;
 }

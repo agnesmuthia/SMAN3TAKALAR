@@ -1,12 +1,14 @@
 import { siteConfig } from "@/lib/site";
 
-// Logo resmi bila URL-nya disediakan (NEXT_PUBLIC_SCHOOL_LOGO_URL); jika tidak,
-// monogram netral yang jelas BUKAN logo resmi sekolah.
-export function SchoolMark({ size = 40, tone = "dark" }: { size?: number; tone?: "dark" | "light" }) {
-  if (siteConfig.logoUrl) {
+// Logo resmi bila URL-nya disediakan (Profil Sekolah di CMS atau
+// NEXT_PUBLIC_SCHOOL_LOGO_URL); jika tidak, monogram netral yang jelas BUKAN
+// logo resmi sekolah.
+export function SchoolMark({ size = 40, tone = "dark", logoUrl }: { size?: number; tone?: "dark" | "light"; logoUrl?: string | null }) {
+  const src = logoUrl ?? siteConfig.logoUrl;
+  if (src) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={siteConfig.logoUrl} alt={`Logo ${siteConfig.name}`} width={size} height={size} style={{ width: size, height: size }} className="object-contain" />
+      <img src={src} alt={`Logo ${siteConfig.name}`} width={size} height={size} style={{ width: size, height: size }} className="object-contain" />
     );
   }
   const initials = siteConfig.shortName

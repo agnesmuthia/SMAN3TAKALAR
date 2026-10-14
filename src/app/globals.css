@@ -193,3 +193,33 @@ body:has(.subscribe-inline) .footer-subscribe {
   content: attr(data-placeholder);
   @apply pointer-events-none float-left h-0 text-slate-400;
 }
+
+/* Penampil foto galeri tanpa JavaScript (CSS :target). */
+.lightbox {
+  display: none;
+}
+.lightbox:target {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(2 6 23 / 0.9);
+}
+.lightbox-figure {
+  position: relative;
+  max-width: min(64rem, 100%);
+}
+.lightbox-figure img {
+  max-height: 80vh;
+  width: auto;
+  max-width: 100%;
+  margin: 0 auto;
+  border-radius: 0.75rem;
+}

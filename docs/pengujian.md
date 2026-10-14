@@ -15,7 +15,8 @@ npm run build       # Build produksi
 `npm run test:db` membutuhkan binari PostgreSQL (`initdb`, `pg_ctl`, `psql`). Skrip
 membuat klaster sementara, memasang stub minimal skema `auth` Supabase
 (`supabase/tests/00_supabase_stub.sql`), menerapkan semua migrasi, menjalankan
-`supabase/tests/10_rls_dan_alur.sql`, lalu menghapus klaster. Database Supabase
+semua berkas `supabase/tests/1*.sql` (alur & RLS: `10_rls_dan_alur`, `11_dashboard`,
+`12_cms_berita`, `13_konten_situs`), lalu menghapus klaster. Database Supabase
 sungguhan tidak disentuh.
 
 ## Pemetaan skenario wajib
@@ -49,3 +50,16 @@ kredensial/konfigurasi nyata tersedia (lihat daftar uji di dokumen terkait).
 - Uji akses langsung ke API Supabase dengan anon key (mis. `curl` ke
   `/rest/v1/newsletter_subscribers`) → harus ditolak.
 - Uji tampilan di ponsel (lebar 360–414 px) dan pembaca layar dasar.
+
+## Konten situs (Tahap 4)
+
+| Skenario | Status | Bukti |
+|----------|--------|-------|
+| Pengunjung hanya melihat halaman/program/album/prestasi/kegiatan yang diterbitkan | Otomatis | DB `13_konten_situs.sql` |
+| Kegiatan internal hanya untuk anggota aktif | Otomatis | DB: "pengunjung hanya melihat kegiatan publik yang diterbitkan", "siswa aktif juga melihat kegiatan internal", "akun pending tidak melihat kegiatan internal" |
+| Album tidak dapat terbit tanpa konfirmasi izin foto | Otomatis | DB: constraint `gallery_publish_needs_consent` |
+| Editor berita tidak dapat mengubah konten situs/pengumuman | Otomatis | DB: "editor berita tidak dapat membuat halaman", "… membuat pengumuman" |
+| Pengumuman internal tidak terbaca pengunjung; pengumuman publik terbaca | Otomatis | DB `11_dashboard.sql`, `13_konten_situs.sql` |
+| Grid kalender (mulai Senin, kegiatan beberapa hari) | Otomatis | unit `tests/calendar.test.ts` |
+| Unggah foto ke bucket `site-media` | **Manual** (butuh proyek Supabase nyata) | `docs/PANDUAN_MENGELOLA_HALAMAN.md` §4 |
+

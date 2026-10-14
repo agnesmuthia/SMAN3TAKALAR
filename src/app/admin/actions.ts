@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { assertAdmin } from "@/lib/auth/dal";
+import { assertAdmin, newsActionContext } from "@/lib/auth/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   approveAndStartCampaign,
@@ -15,6 +15,12 @@ import type { ActionFormState } from "@/components/action-form";
 type State = ActionFormState;
 const ok = (message: string): State => ({ status: "success", message });
 const fail = (message: string): State => ({ status: "error", message });
+
+// Pengumuman dikelola penerbit konten (Super Admin & Admin Website).
+async function contentPublisher() {
+  const ctx = await newsActionContext();
+  return ctx?.access.canPublish ? ctx : null;
+}
 
 async function guard(): Promise<Awaited<ReturnType<typeof assertAdmin>> | null> {
   try {
@@ -314,12 +320,12 @@ const announcementSchema = z.object({
   id: z.uuid().optional(),
   title: z.string().trim().min(3, "Judul minimal 3 karakter.").max(200),
   body: z.string().trim().max(5000, "Isi maksimal 5000 karakter."),
-  audience: z.enum(["semua", "guru", "siswa", "guru_bk"]),
+  audience: z.enum(["publik", "semua", "guru", "siswa", "guru_bk"]),
   status: z.enum(["draft", "published", "archived"]),
 });
 
 export async function saveAnnouncementAction(_prev: State, formData: FormData): Promise<State> {
-  const ctx = await guard();
+  const ctx = await contentPublisher();
   if (!ctx) return fail("Akses ditolak.");
   const parsed = announcementSchema.safeParse({
     id: formData.get("id") || undefined,
@@ -350,12 +356,14 @@ export async function saveAnnouncementAction(_prev: State, formData: FormData): 
   if (error) return fail("Pengumuman gagal disimpan.");
   revalidatePath("/admin/pengumuman");
   revalidatePath("/dashboard", "layout");
+  revalidatePath("/pengumuman");
+  revalidatePath("/");
   if (!v.id) redirect("/admin/pengumuman?disimpan=1");
   return ok("Pengumuman disimpan.");
 }
 
 export async function deleteAnnouncementAction(_prev: State, formData: FormData): Promise<State> {
-  const ctx = await guard();
+  const ctx = await contentPublisher();
   if (!ctx) return fail("Akses ditolak.");
   const id = z.uuid().safeParse(formData.get("id"));
   if (!id.success) return fail("Data tidak valid.");

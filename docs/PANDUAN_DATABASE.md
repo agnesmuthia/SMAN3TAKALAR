@@ -44,7 +44,13 @@ dengan peran seminimal mungkin), terpisah dari akun admin website.
 | `news_categories`, `news_tags`, `news_tag_links` | Kategori & tag berita | Tidak; gunakan CMS |
 | `news_revisions` | Riwayat perubahan berita (otomatis) | Hanya dibaca |
 | `staff_roles` | Peran CMS (Editor, Admin Website) | Tidak; gunakan `/admin/pengguna` |
-| `announcements`, `announcement_reads` | Pengumuman internal | Tidak; gunakan `/admin/pengumuman` |
+| `site_profile` | Profil sekolah: hero, logo, kontak, media sosial (satu baris) | Tidak; gunakan `/admin/profil-sekolah` |
+| `site_pages` | Halaman profil (HTML tersanitasi) | Tidak; gunakan `/admin/halaman` |
+| `school_programs` | Program unggulan | Tidak; gunakan `/admin/program` |
+| `gallery_albums`, `gallery_photos` | Album & foto galeri (album terbit wajib punya konfirmasi izin) | Tidak; gunakan `/admin/galeri` |
+| `achievements` | Prestasi | Tidak; gunakan `/admin/prestasi` |
+| `calendar_events` | Kalender kegiatan (publik/internal) | Tidak; gunakan `/admin/kalender` |
+| `announcements`, `announcement_reads` | Pengumuman (publik & internal) | Tidak; gunakan `/admin/pengumuman` |
 | `schedule_entries` | Jadwal pelajaran | Tidak; gunakan `/admin/jadwal` |
 | `assignments` | Tugas & materi guru | Tidak; dikelola guru |
 | `newsletter_*` | Data langganan email (memuat alamat email) | **Tidak**; gunakan `/admin/langganan` |
@@ -56,6 +62,8 @@ dengan peran seminimal mungkin), terpisah dari akun admin website.
 
 - Bucket `news-images` menyimpan gambar berita (publik untuk dibaca lewat URL, maks. 5 MB,
   hanya JPG/PNG/WebP). Lokasi: **Storage → news-images**.
+- Bucket `site-media` menyimpan logo, gambar hero, foto galeri, prestasi, dan program
+  (aturan sama: publik dibaca, maks. 5 MB, JPG/PNG/WebP).
 - Unggahan hanya lewat CMS (server memeriksa izin dan isi file). Tidak ada policy tulis
   untuk browser.
 - Nama file acak per tahun/bulan (mis. `2026/10/<acak>.jpg`).

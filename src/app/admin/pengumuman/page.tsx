@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Alert } from "@/components/alert";
-import { requireRole } from "@/lib/auth/dal";
+import { requireNewsPublisher } from "@/lib/auth/dal";
 import { formatTanggal } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Pengumuman internal" };
 
 const STATUS: Record<string, string> = { draft: "Draf", published: "Terbit", archived: "Arsip" };
-const AUDIENCE: Record<string, string> = { semua: "Semua", guru: "Guru", siswa: "Siswa", guru_bk: "Guru BK" };
+const AUDIENCE: Record<string, string> = { publik: "Publik", semua: "Semua warga", guru: "Guru", siswa: "Siswa", guru_bk: "Guru BK" };
 
 export default async function AdminPengumumanPage({ searchParams }: PageProps<"/admin/pengumuman">) {
-  const ctx = await requireRole(["admin"], "/admin/pengumuman");
+  const ctx = await requireNewsPublisher("/admin/pengumuman");
   const sp = await searchParams;
   const { data } = await ctx.supabase
     .from("announcements")

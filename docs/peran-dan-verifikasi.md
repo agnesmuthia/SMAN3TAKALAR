@@ -27,7 +27,7 @@ Aturan yang ditegakkan di database (bukan hanya di tampilan):
 | Peran staf | Diberikan oleh | Kewenangan |
 |------------|----------------|------------|
 | Editor | Super Admin di `/admin/pengguna` | Menulis berita sendiri, mengirim untuk persetujuan |
-| Admin Website | Super Admin di `/admin/pengguna` | Semua berita: menyetujui, menerbitkan/menjadwalkan, mengarsipkan, kategori |
+| Admin Website | Super Admin di `/admin/pengguna` | Semua berita: menyetujui, menerbitkan/menjadwalkan, mengarsipkan, kategori; pengumuman; konten situs (profil sekolah, halaman, program, galeri, prestasi, kalender) |
 
 Peran staf hanya berlaku untuk akun **aktif** dan otomatis tidak berlaku bila akun
 dinonaktifkan. Pemberiannya dicatat di `admin_audit_log`.
@@ -68,7 +68,8 @@ setelah impor. Tabel ini hanya dapat dibaca admin (RLS).
 | Guru | `/dashboard/guru`, `/jadwal`, `/tugas` | Jadwal mengajarnya, kelola tugas & materi **miliknya**, pengumuman |
 | Guru BK | `/dashboard/bk` | Kerangka + pengumuman. **Belum ada data konseling.** |
 | Semua anggota aktif | `/dashboard/pengumuman` | Pengumuman yang ditujukan ke perannya, penanda sudah dibaca |
-| Admin | `/admin/pengumuman`, `/admin/jadwal`, `/admin/pengguna` | Kelola pengumuman, jadwal, dan kelas siswa |
+| Admin | `/admin/jadwal`, `/admin/pengguna` | Kelola jadwal dan kelas siswa |
+| Admin & Admin Website | `/admin/pengumuman` | Kelola pengumuman (termasuk audiens **Publik** yang tampil di website) |
 
 Catatan operasional:
 

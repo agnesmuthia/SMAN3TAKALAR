@@ -30,7 +30,7 @@ Kata sandi tidak pernah ditulis di dokumentasi ini dan tidak boleh dibagikan.
 | Peran | Diberikan oleh | Dapat mengakses |
 |-------|----------------|-----------------|
 | Super Admin (`admin`) | Admin pertama via SQL (sekali), selanjutnya Super Admin lain | Semua menu admin |
-| Admin Website | Super Admin (Pengguna → CMS) | Ringkasan, Berita (termasuk menerbitkan & kategori) |
+| Admin Website | Super Admin (Pengguna → CMS) | Ringkasan, Berita (termasuk menerbitkan & kategori), Pengumuman, Halaman, Program, Galeri, Prestasi, Kalender, Profil Sekolah |
 | Editor | Super Admin (Pengguna → CMS) | Ringkasan, Berita (menulis & mengirim untuk persetujuan) |
 | Guru / Siswa | Admin melalui verifikasi | Dashboard guru/siswa, tanpa akses admin |
 | Guru BK | Super Admin | Dashboard BK |
@@ -65,6 +65,7 @@ database; akses database hanya untuk petugas teknis (lihat `docs/PANDUAN_DATABAS
 ## 6. Panduan terkait
 
 - Mengelola berita: `docs/PANDUAN_MENGELOLA_BERITA.md`
+- Mengelola halaman, galeri, prestasi, kalender, pengumuman: `docs/PANDUAN_MENGELOLA_HALAMAN.md`
 - Langganan berita email: `docs/langganan-berita-email.md`
 - Peran & verifikasi: `docs/peran-dan-verifikasi.md`
 - Database (petugas teknis): `docs/PANDUAN_DATABASE.md`
