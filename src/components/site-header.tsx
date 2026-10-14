@@ -2,43 +2,76 @@ import Link from "next/link";
 import { getAuthContext } from "@/lib/auth/dal";
 import { homeForRole } from "@/lib/auth/routing";
 import { siteConfig } from "@/lib/site";
+import { SchoolMark } from "./school-mark";
+
+const NAV = [
+  { href: "/", label: "Beranda" },
+  { href: "/berita", label: "Berita" },
+];
 
 export async function SiteHeader() {
   const ctx = await getAuthContext();
   const signedIn = Boolean(ctx?.user);
   const role = ctx?.profile?.status === "active" ? ctx.profile.role : null;
   const accountHref = role ? homeForRole(role) : "/akun";
+  const accountLabel = role ? "Dashboard" : "Akun";
 
   return (
-    <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-        <Link href="/" className="flex items-center gap-3">
-          {siteConfig.logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={siteConfig.logoUrl} alt={`Logo ${siteConfig.name}`} width={40} height={40} className="h-10 w-10" />
-          ) : (
-            <span aria-hidden className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-800 text-sm font-bold text-accent-400">
-              S3
-            </span>
-          )}
-          <span className="text-base font-bold text-brand-900 sm:text-lg">{siteConfig.name}</span>
+    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+        <Link href="/" className="flex min-w-0 items-center gap-3">
+          <SchoolMark />
+          <span className="min-w-0">
+            <span className="block truncate text-base font-bold leading-tight text-navy-900 sm:text-lg">{siteConfig.name}</span>
+            <span className="hidden text-xs text-slate-500 sm:block">Website resmi sekolah</span>
+          </span>
         </Link>
-        <nav aria-label="Navigasi utama" className="flex items-center gap-1 text-sm font-medium">
-          <Link href="/" className="rounded px-3 py-2 text-slate-700 hover:bg-slate-100">Beranda</Link>
-          <Link href="/berita" className="rounded px-3 py-2 text-slate-700 hover:bg-slate-100">Berita</Link>
+
+        {/* Desktop */}
+        <nav aria-label="Navigasi utama" className="hidden items-center gap-1 text-sm font-medium md:flex">
+          {NAV.map((item) => (
+            <Link key={item.href} href={item.href} className="rounded-lg px-3 py-2 text-slate-700 transition hover:bg-surface hover:text-navy-900">
+              {item.label}
+            </Link>
+          ))}
           {signedIn ? (
             <>
-              <Link href={accountHref} className="rounded px-3 py-2 text-slate-700 hover:bg-slate-100">
-                {role ? "Dashboard" : "Akun"}
-              </Link>
+              <Link href={accountHref} className="rounded-lg px-3 py-2 text-slate-700 transition hover:bg-surface hover:text-navy-900">{accountLabel}</Link>
               <form action="/auth/keluar" method="post">
-                <button type="submit" className="rounded px-3 py-2 text-slate-700 hover:bg-slate-100">Keluar</button>
+                <button type="submit" className="rounded-lg px-3 py-2 text-slate-700 transition hover:bg-surface hover:text-navy-900">Keluar</button>
               </form>
             </>
           ) : (
-            <Link href="/masuk" className="btn-primary ml-1">Masuk</Link>
+            <Link href="/masuk" className="btn-primary ml-2">Masuk</Link>
           )}
         </nav>
+
+        {/* Ponsel: menu tanpa JavaScript */}
+        <details className="group relative md:hidden">
+          <summary className="flex cursor-pointer list-none items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-navy-900 [&::-webkit-details-marker]:hidden">
+            <svg aria-hidden width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M4 7h16M4 12h16M4 17h16" className="group-open:hidden" />
+              <path d="M6 6l12 12M18 6L6 18" className="hidden group-open:block" />
+            </svg>
+            Menu
+          </summary>
+          <nav aria-label="Navigasi utama (ponsel)" className="absolute right-0 mt-2 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+            {NAV.map((item) => (
+              <Link key={item.href} href={item.href} className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-surface">{item.label}</Link>
+            ))}
+            <div className="my-2 h-px bg-slate-100" />
+            {signedIn ? (
+              <>
+                <Link href={accountHref} className="block rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-surface">{accountLabel}</Link>
+                <form action="/auth/keluar" method="post">
+                  <button type="submit" className="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-surface">Keluar</button>
+                </form>
+              </>
+            ) : (
+              <Link href="/masuk" className="btn-primary w-full">Masuk</Link>
+            )}
+          </nav>
+        </details>
       </div>
     </header>
   );
