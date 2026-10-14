@@ -46,6 +46,10 @@ check("Referrer-Policy", Boolean(home.headers.get("referrer-policy")));
 check("Tanpa X-Powered-By", !home.headers.get("x-powered-by"));
 if (base.startsWith("https://")) check("HSTS", (home.headers.get("strict-transport-security") ?? "").includes("max-age="));
 
+const health = await get("/api/health");
+const healthBody = await health.json().catch(() => ({}));
+check("health: aplikasi & database", health.status === 200 && healthBody.database === "ok", `status ${health.status} database=${healthBody.database}`);
+check("health tidak membuka versi/konfigurasi", Object.keys(healthBody).sort().join(",") === "database,status,time");
 check("cron menolak tanpa rahasia", (await get("/api/cron/newsletter")).status === 401);
 check("webhook menolak GET", (await get("/api/newsletter/webhook")).status >= 400);
 check("unduh SK acak → 404", (await get("/dokumen/00000000-0000-4000-8000-000000000000/unduh")).status === 404);

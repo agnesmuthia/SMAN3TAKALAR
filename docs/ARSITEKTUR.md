@@ -9,18 +9,22 @@ Pengunjung / warga sekolah (browser)
         │ HTTPS
         ▼
 Aplikasi Next.js 16 (server Node.js)  ── dijalankan di hosting Node.js (Hostinger Business/Cloud atau Vercel)
-  • src/proxy.ts         : penyegaran sesi & blok area privat tanpa login
+  • src/proxy.ts         : penyegaran sesi, blok area privat tanpa login, CSP nonce
+  • src/instrumentation.ts : cek konfigurasi wajib saat server mulai (log tanpa nilai)
   • Server Components    : membaca data per permintaan
   • Server Actions       : semua perubahan data (cek peran di server)
-  • Route Handlers       : callback OAuth, webhook email, cron, ekspor CSV
+  • Route Handlers       : callback OAuth, webhook email, cron, ekspor CSV, unduh PDF
+                           (tautan sementara), /api/health
         │ HTTPS (anon key + sesi pengguna, atau service role khusus server)
         ▼
 Supabase
   • Auth      : akun email/Google
   • Postgres  : seluruh data + Row Level Security (RLS)
+  • Storage   : news-images & site-media (baca publik), documents (PRIVAT)
         │
         ▼
 Resend (email konfirmasi & buletin)   ← webhook status ke /api/newsletter/webhook
+Penjadwal (GitHub Actions/cron hPanel) → /api/cron/newsletter (Bearer CRON_SECRET)
 ```
 
 ## Lapisan keamanan
@@ -65,15 +69,17 @@ wajib terisolasi dengan cara yang sama.
 ```
 src/app/        halaman & route (App Router)
 src/components/ komponen UI bersama
-src/lib/        logika: auth, newsletter, dashboard, supabase client
+src/lib/        logika: auth, cms, content, school, newsletter, dashboard, ops, security, supabase
 src/proxy.ts    proxy (pengganti middleware di Next 16)
 supabase/migrations/  skema database (urut waktu, aditif)
-supabase/tests/       uji RLS & alur (dijalankan scripts/test-db.sh)
-tests/          unit test (Vitest)
-docs/           dokumentasi
+supabase/tests/       uji RLS, alur, hak akses (dijalankan scripts/test-db.sh)
+scripts/        uji database, backup/pulih (+ uji), smoke test
+tests/          unit test (Vitest), termasuk tes keamanan statis
+docs/           dokumentasi (indeks: docs/README.md)
 ```
 
 ## Hal yang belum ada
 
-Ruang Rasa, konfigurasi Hostinger,
-prosedur backup. Lihat `docs/AUDIT_DAN_RENCANA.md`.
+Ruang Rasa (menunggu kebijakan sekolah). Pemasangan produksi (Supabase & Hostinger) belum
+dilakukan; panduannya di `docs/PANDUAN_DEPLOYMENT_HOSTINGER.md`. Lihat juga
+`docs/SERAH_TERIMA.md`.

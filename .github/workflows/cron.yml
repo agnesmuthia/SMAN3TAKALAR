@@ -1,0 +1,37 @@
+name: Penjadwal buletin & pembersihan
+
+# Memanggil /api/cron/newsletter secara berkala: melanjutkan pengiriman
+# buletin bertahap dan membersihkan data kedaluwarsa. Pilihan penjadwal yang
+# tidak bergantung pada fitur cron hosting.
+#
+# TIDAK AKTIF sampai sekolah mengisi di GitHub → Settings → Secrets and variables → Actions:
+#   - Variable  CRON_URL     = https://<domain>/api/cron/newsletter
+#   - Secret    CRON_SECRET  = nilai yang sama dengan CRON_SECRET di hosting
+# Catatan: jadwal GitHub bisa tertunda beberapa menit; di repository privat
+# setiap jalannya dihitung minimal 1 menit kuota Actions.
+
+on:
+  schedule:
+    - cron: "7,37 * * * *" # tiap 30 menit (UTC)
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  panggil:
+    if: ${{ vars.CRON_URL != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Panggil endpoint cron
+        env:
+          CRON_URL: ${{ vars.CRON_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then echo "Secret CRON_SECRET belum diisi."; exit 1; fi
+          status=$(curl -sS -o /tmp/respons.json -w '%{http_code}' --max-time 90 \
+            -H "Authorization: Bearer $CRON_SECRET" "$CRON_URL")
+          echo "HTTP $status"
+          # Ringkasan tanpa data pribadi (hanya jumlah).
+          head -c 600 /tmp/respons.json; echo
+          [ "$status" = "200" ]

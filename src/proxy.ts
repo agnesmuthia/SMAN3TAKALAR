@@ -18,6 +18,6 @@ export const config = {
   matcher: [
     // Lewati aset statis, gambar, dan endpoint mesin (webhook/cron) yang
     // tidak memakai sesi pengguna.
-    "/((?!_next/static|_next/image|favicon.ico|api/newsletter/webhook|api/cron|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|csv|xlsx)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api/newsletter/webhook|api/cron|api/health|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|csv|xlsx)$).*)",
   ],
 };

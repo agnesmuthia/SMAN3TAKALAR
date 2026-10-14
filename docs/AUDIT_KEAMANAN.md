@@ -22,7 +22,7 @@ harus diperiksa saat deployment (Tahap 8).
 | HTML mentah | `tests/security-static.test.ts` | `dangerouslySetInnerHTML` hanya di `article-body.tsx` yang menyanitasi ulang |
 | Rahasia di kode | `tests/security-static.test.ts` | Tidak ada pola kunci/token/private key; tidak ada `NEXT_PUBLIC_*` berisi rahasia; tidak ada `eval` |
 | CSP | `tests/csp.test.ts` + pemeriksaan browser | Nonce per permintaan; tanpa `unsafe-eval`/`unsafe-inline` untuk skrip di produksi |
-| Header & akses | `scripts/smoke-test.mjs` | 34 pemeriksaan: halaman publik, halaman privat menolak tanpa login, header keamanan, endpoint mesin menolak tanpa izin |
+| Header & akses | `scripts/smoke-test.mjs` | 36 pemeriksaan: halaman publik, halaman privat menolak tanpa login, header keamanan, endpoint mesin menolak tanpa izin, `/api/health` tanpa membuka informasi sistem |
 | Backup | `scripts/test-backup-restore.sh` | Enkripsi, checksum, pengaman produksi, isi identik setelah pulih |
 | Dependensi | `npm audit --omit=dev` | 0 kerentanan saat audit |
 

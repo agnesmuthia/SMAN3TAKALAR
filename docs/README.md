@@ -1,6 +1,8 @@
 # Dokumentasi Website SMA Negeri 3 Takalar
 
-Semua panduan berbahasa Indonesia. Pilih sesuai peran Anda.
+Semua panduan berbahasa Indonesia. Pilih sesuai peran Anda. Mulai dari
+**[SERAH_TERIMA.md](SERAH_TERIMA.md)** untuk ringkasan apa yang sudah dibangun, apa yang
+masih perlu dikonfigurasi, dan keputusan yang ditunggu dari sekolah.
 
 ## Untuk pengelola konten & admin
 
@@ -18,6 +20,7 @@ Semua panduan berbahasa Indonesia. Pilih sesuai peran Anda.
 
 | Dokumen | Isi |
 |---------|-----|
+| [PANDUAN_DEPLOYMENT_HOSTINGER.md](PANDUAN_DEPLOYMENT_HOSTINGER.md) | Supabase produksi, aplikasi Node.js di Hostinger, environment, domain, cron, **checklist go-live**, pembaruan & rollback |
 | [PANDUAN_BACKUP_PEMULIHAN.md](PANDUAN_BACKUP_PEMULIHAN.md) | Backup database & file Storage terenkripsi, uji pemulihan, pemulihan darurat |
 | [AUDIT_KEAMANAN.md](AUDIT_KEAMANAN.md) | Temuan audit keamanan, kontrol otomatis, rekomendasi |
 | [PANDUAN_DATABASE.md](PANDUAN_DATABASE.md) | Supabase Dashboard, peta tabel & relasi, Storage, migrasi, kueri aman, prosedur standar, larangan |
@@ -27,9 +30,8 @@ Semua panduan berbahasa Indonesia. Pilih sesuai peran Anda.
 | [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) | Warna, tipografi, komponen UI |
 | [AUDIT_DAN_RENCANA.md](AUDIT_DAN_RENCANA.md) | Audit awal & rencana tahapan |
 
-## Menyusul
+## Belum dibangun
 
-| Topik | Tahap |
-|-------|-------|
-| Deployment Hostinger & dokumentasi final | Tahap 8 |
-| Ruang Rasa | Menunggu keputusan kebijakan sekolah |
+| Topik | Status |
+|-------|--------|
+| Ruang Rasa (pelaporan/konseling) | Menunggu keputusan kebijakan sekolah (`AUDIT_DAN_RENCANA.md` §9) |

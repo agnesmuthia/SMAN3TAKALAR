@@ -104,5 +104,5 @@ npm run smoke -- http://localhost:3000   # atau URL produksi setelah deploy
 | Pengaman produksi, frasa sandi salah, file rusak, backup tanpa enkripsi ditolak | Otomatis | `scripts/test-backup-restore.sh` |
 | Backup/pulih file Storage (subfolder, tidak menimpa, checksum, jalur aman) | Otomatis | unit `tests/storage-backup.test.ts` |
 | Backup/pulih pada proyek Supabase **sungguhan** | **Manual (belum dilakukan)** | `docs/PANDUAN_BACKUP_PEMULIHAN.md` §6 & §10 |
-| Halaman publik 200, halaman privat menolak tanpa login, header keamanan | Otomatis (per deploy) | `scripts/smoke-test.mjs` (34 pemeriksaan) |
+| Halaman publik 200, halaman privat menolak tanpa login, header keamanan, `/api/health` | Otomatis (per deploy) | `scripts/smoke-test.mjs` (36 pemeriksaan) |
 
