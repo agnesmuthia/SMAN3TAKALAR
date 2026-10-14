@@ -30,7 +30,7 @@ export const getAuthContext = cache(async (): Promise<AuthContext | null> => {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, full_name, role, status, profile_completed_at, verified_at")
+    .select("id, full_name, role, status, profile_completed_at, verified_at, class_name")
     .eq("id", data.user.id)
     .maybeSingle<Profile>();
 

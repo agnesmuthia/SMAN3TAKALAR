@@ -8,6 +8,7 @@ export type Profile = {
   status: AccountStatus;
   profile_completed_at: string | null;
   verified_at: string | null;
+  class_name: string | null;
 };
 
 export const ROLE_LABEL: Record<UserRole, string> = {

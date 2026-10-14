@@ -404,3 +404,126 @@ export async function saveSettingsAction(_prev: State, formData: FormData): Prom
   revalidatePath("/admin/pengaturan");
   return ok("Pengaturan disimpan.");
 }
+
+// -----------------------------------------------------------------------------
+// Pengumuman internal, jadwal pelajaran, kelas siswa
+// -----------------------------------------------------------------------------
+
+const announcementSchema = z.object({
+  id: z.uuid().optional(),
+  title: z.string().trim().min(3, "Judul minimal 3 karakter.").max(200),
+  body: z.string().trim().max(5000, "Isi maksimal 5000 karakter."),
+  audience: z.enum(["semua", "guru", "siswa", "guru_bk"]),
+  status: z.enum(["draft", "published", "archived"]),
+});
+
+export async function saveAnnouncementAction(_prev: State, formData: FormData): Promise<State> {
+  const ctx = await guard();
+  if (!ctx) return fail("Akses ditolak.");
+  const parsed = announcementSchema.safeParse({
+    id: formData.get("id") || undefined,
+    title: formData.get("title") ?? "",
+    body: formData.get("body") ?? "",
+    audience: formData.get("audience"),
+    status: formData.get("status"),
+  });
+  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Data tidak valid.");
+  const v = parsed.data;
+
+  let publishedAt: string | null = null;
+  if (v.id) {
+    const { data: existing } = await ctx.supabase
+      .from("announcements")
+      .select("published_at")
+      .eq("id", v.id)
+      .maybeSingle<{ published_at: string | null }>();
+    if (!existing) return fail("Pengumuman tidak ditemukan.");
+    publishedAt = existing.published_at;
+  }
+  if (v.status === "published" && !publishedAt) publishedAt = new Date().toISOString();
+
+  const row = { title: v.title, body: v.body, audience: v.audience, status: v.status, published_at: publishedAt };
+  const { error } = v.id
+    ? await ctx.supabase.from("announcements").update(row).eq("id", v.id)
+    : await ctx.supabase.from("announcements").insert({ ...row, created_by: ctx.user.id });
+  if (error) return fail("Pengumuman gagal disimpan.");
+  revalidatePath("/admin/pengumuman");
+  revalidatePath("/dashboard", "layout");
+  if (!v.id) redirect("/admin/pengumuman?disimpan=1");
+  return ok("Pengumuman disimpan.");
+}
+
+export async function deleteAnnouncementAction(_prev: State, formData: FormData): Promise<State> {
+  const ctx = await guard();
+  if (!ctx) return fail("Akses ditolak.");
+  const id = z.uuid().safeParse(formData.get("id"));
+  if (!id.success) return fail("Data tidak valid.");
+  const { error } = await ctx.supabase.from("announcements").delete().eq("id", id.data);
+  if (error) return fail("Pengumuman gagal dihapus.");
+  revalidatePath("/admin/pengumuman");
+  redirect("/admin/pengumuman");
+}
+
+const timeField = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Format jam harus HH:MM.");
+const scheduleSchema = z
+  .object({
+    className: z.string().trim().min(1, "Kelas wajib diisi.").max(40),
+    day: z.coerce.number().int().min(1).max(6),
+    start: timeField,
+    end: timeField,
+    subject: z.string().trim().min(1, "Mata pelajaran wajib diisi.").max(100),
+    teacherId: z.union([z.uuid(), z.literal("")]),
+    room: z.string().trim().max(40),
+  })
+  .refine((v) => v.end > v.start, { message: "Jam selesai harus setelah jam mulai.", path: ["end"] });
+
+export async function saveScheduleEntryAction(_prev: State, formData: FormData): Promise<State> {
+  const ctx = await guard();
+  if (!ctx) return fail("Akses ditolak.");
+  const parsed = scheduleSchema.safeParse({
+    className: formData.get("className") ?? "",
+    day: formData.get("day"),
+    start: formData.get("start") ?? "",
+    end: formData.get("end") ?? "",
+    subject: formData.get("subject") ?? "",
+    teacherId: formData.get("teacherId") ?? "",
+    room: formData.get("room") ?? "",
+  });
+  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Data tidak valid.");
+  const v = parsed.data;
+  const { error } = await ctx.supabase.from("schedule_entries").insert({
+    class_name: v.className,
+    day_of_week: v.day,
+    start_time: v.start,
+    end_time: v.end,
+    subject: v.subject,
+    teacher_id: v.teacherId || null,
+    room: v.room || null,
+  });
+  if (error) return fail("Jadwal gagal disimpan.");
+  revalidatePath("/admin/jadwal");
+  return ok("Jadwal ditambahkan.");
+}
+
+export async function deleteScheduleEntryAction(_prev: State, formData: FormData): Promise<State> {
+  const ctx = await guard();
+  if (!ctx) return fail("Akses ditolak.");
+  const id = z.uuid().safeParse(formData.get("id"));
+  if (!id.success) return fail("Data tidak valid.");
+  const { error } = await ctx.supabase.from("schedule_entries").delete().eq("id", id.data);
+  if (error) return fail("Jadwal gagal dihapus.");
+  revalidatePath("/admin/jadwal");
+  return ok("Jadwal dihapus.");
+}
+
+export async function setStudentClassAction(_prev: State, formData: FormData): Promise<State> {
+  const ctx = await guard();
+  if (!ctx) return fail("Akses ditolak.");
+  const userId = z.uuid().safeParse(formData.get("userId"));
+  const className = String(formData.get("className") ?? "").trim().slice(0, 40);
+  if (!userId.success) return fail("Data tidak valid.");
+  const { error } = await ctx.supabase.rpc("admin_set_student_class", { p_user_id: userId.data, p_class_name: className });
+  if (error) return fail("Kelas gagal diperbarui (pastikan pengguna adalah siswa).");
+  revalidatePath("/admin/pengguna");
+  return ok("Kelas diperbarui.");
+}
