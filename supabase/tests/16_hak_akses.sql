@@ -64,6 +64,23 @@ select pg_temp.assert(
                  and has_function_privilege('authenticated', p.oid, 'EXECUTE')),
   'fungsi trigger internal tidak dapat dipanggil langsung oleh pengguna');
 
+-- Ruang Rasa: tabel tidak boleh diakses langsung oleh peran mana pun selain
+-- service role; fungsi pelapor hanya untuk service role.
+select pg_temp.assert(
+  not exists (select 1 from information_schema.role_table_grants
+               where grantee in ('anon', 'authenticated', 'public') and table_schema = 'public' and table_name like 'rasa\_%'),
+  'tabel Ruang Rasa tidak punya hak apa pun untuk anon/authenticated');
+select pg_temp.assert(
+  not exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+               where n.nspname = 'public' and p.proname in ('rasa_submit', 'rasa_reporter_credentials', 'rasa_reporter_view',
+                                                             'rasa_reporter_reply', 'rasa_handler_ids', 'rasa_purge_expired')
+                 and (has_function_privilege('authenticated', p.oid, 'EXECUTE') or has_function_privilege('anon', p.oid, 'EXECUTE'))),
+  'fungsi sisi pelapor Ruang Rasa hanya dapat dipanggil service role');
+select pg_temp.assert(
+  not exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+               where n.nspname = 'public' and p.proname like 'rasa\_%' and has_function_privilege('anon', p.oid, 'EXECUTE')),
+  'pengunjung tidak dapat memanggil fungsi Ruang Rasa apa pun');
+
 -- RLS & bucket.
 select pg_temp.assert(
   not exists (select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace

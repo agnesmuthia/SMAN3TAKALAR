@@ -27,5 +27,9 @@ insert into storage.objects (bucket_id, name) values
   ('site-media', '2026/10/bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb.jpg');
 insert into public.newsletter_subscribers (email, status, consent_policy_version, consent_text)
   values ('pelanggan@contoh.test', 'pending', '2026-10-14', 'Setuju (uji)');
+insert into public.rasa_reports (id, reference_code, pin_salt, pin_hash, category, content, last_sender) values
+  ('60000000-0000-4000-8000-000000000001', 'RSA-AB23-CD45', repeat('a', 32), repeat('b', 64), 'perundungan', 'v1.SANDI-TIRUAN-UNTUK-UJI-BACKUP-LAPORAN', 'bk');
+insert into public.rasa_messages (report_id, sender, content) values
+  ('60000000-0000-4000-8000-000000000001', 'bk', 'v1.SANDI-TIRUAN-UNTUK-UJI-BACKUP-PESAN-BK');
 insert into public.admin_audit_log (actor_id, action, details) values
   ('00000000-0000-0000-0000-00000000000a', 'uji.manual', '{"catatan": "baris log uji"}');

@@ -11,9 +11,9 @@ Mulai dari **[docs/SERAH_TERIMA.md](docs/SERAH_TERIMA.md)** (ringkasan & status)
 
 | Area | Isi |
 |------|-----|
-| Publik | Beranda, berita (kategori, tag, cari), profil, pengumuman, galeri, prestasi, kalender, perpustakaan, arsip SK, langganan berita |
+| Publik | Beranda, berita (kategori, tag, cari), profil, pengumuman, galeri, prestasi, kalender, perpustakaan, arsip SK, langganan berita, **Ruang Rasa** (lapor perundungan, boleh anonim) |
 | Akun | Email/kata sandi & Google; verifikasi guru/siswa oleh admin. Login **tidak pernah** memberi peran otomatis |
-| Dashboard | Guru (jadwal, tugas & materi), siswa (jadwal semester aktif, tugas), Guru BK (kerangka), pengumuman internal |
+| Dashboard | Guru (jadwal, tugas & materi), siswa (jadwal semester aktif, tugas), Guru BK (laporan Ruang Rasa), pengumuman internal |
 | CMS & admin | Alur berita draf → review → terbit/terjadwal → arsip dengan revisi; halaman, program, galeri, prestasi, kalender, profil sekolah; tahun ajaran, impor jadwal CSV/XLSX dengan pratinjau; arsip SK privat; perpustakaan; pengguna & peran; Status Sistem; Log Aktivitas |
 | Operasional | Backup/pulih terenkripsi, smoke test, `/api/health`, penjadwal cron |
 
@@ -21,11 +21,11 @@ Mulai dari **[docs/SERAH_TERIMA.md](docs/SERAH_TERIMA.md)** (ringkasan & status)
 
 | Bagian | Status |
 |--------|--------|
-| Kode & pengujian otomatis | Selesai: 196 unit test, 234 asersi database, uji backup→pulih, smoke test |
+| Kode & pengujian otomatis | Selesai: 218 unit test, 278 asersi database, uji backup→pulih, smoke test |
 | Proyek Supabase produksi, hosting Hostinger | **Belum dipasang.** Ikuti [docs/PANDUAN_DEPLOYMENT_HOSTINGER.md](docs/PANDUAN_DEPLOYMENT_HOSTINGER.md) |
 | Login Google, email (Resend) | Kode selesai; **aktif setelah kredensial asli dikonfigurasi** ([google-oauth](docs/google-oauth.md), [email](docs/langganan-berita-email.md)) |
 | Backup | Skrip diuji di PostgreSQL lokal; **uji pertama di Supabase sungguhan belum dilakukan** |
-| Ruang Rasa | Belum dibangun; menunggu keputusan kebijakan sekolah |
+| Ruang Rasa | Kode selesai & diuji otomatis; **belum diuji dengan Supabase sungguhan**; butuh `RASA_ENCRYPTION_KEY`, penugasan Guru BK, dan prosedur darurat dari sekolah ([panduan](docs/PANDUAN_RUANG_RASA.md)) |
 
 ## Menjalankan secara lokal
 

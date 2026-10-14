@@ -13,6 +13,7 @@ masih perlu dikonfigurasi, dan keputusan yang ditunggu dari sekolah.
 | [PANDUAN_MENGELOLA_BERITA.md](PANDUAN_MENGELOLA_BERITA.md) | Editor, Admin Website | Menulis, menyetujui, menjadwalkan, mengarsipkan berita |
 | [PANDUAN_MENGELOLA_HALAMAN.md](PANDUAN_MENGELOLA_HALAMAN.md) | Admin Website | Profil sekolah, halaman, program, galeri, prestasi, kalender, pengumuman |
 | [PANDUAN_ADMINISTRASI_SEKOLAH.md](PANDUAN_ADMINISTRASI_SEKOLAH.md) | Petugas Administrasi | Tahun ajaran, jadwal & impor CSV/XLSX, arsip SK, perpustakaan |
+| [PANDUAN_RUANG_RASA.md](PANDUAN_RUANG_RASA.md) | Super Admin, Guru BK, petugas teknis | Pemasangan Ruang Rasa, privasi & batasnya, prosedur Guru BK, daftar uji go-live |
 | [peran-dan-verifikasi.md](peran-dan-verifikasi.md) | Super Admin | Peran, verifikasi guru/siswa, admin pertama, data induk |
 | [langganan-berita-email.md](langganan-berita-email.md) | Super Admin, petugas teknis | Langganan berita email, Resend, kampanye |
 
@@ -29,9 +30,3 @@ masih perlu dikonfigurasi, dan keputusan yang ditunggu dari sekolah.
 | [pengujian.md](pengujian.md) | Cara menjalankan pengujian & pemetaan skenario |
 | [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) | Warna, tipografi, komponen UI |
 | [AUDIT_DAN_RENCANA.md](AUDIT_DAN_RENCANA.md) | Audit awal & rencana tahapan |
-
-## Belum dibangun
-
-| Topik | Status |
-|-------|--------|
-| Ruang Rasa (pelaporan/konseling) | Menunggu keputusan kebijakan sekolah (`AUDIT_DAN_RENCANA.md` §9) |

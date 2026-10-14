@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { cronSecret } from "@/lib/env";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { processPendingCampaigns } from "@/lib/newsletter/service";
+import { purgeExpiredReports } from "@/lib/rasa/service";
 
 export const maxDuration = 60;
 
@@ -24,6 +25,7 @@ export async function GET(request: NextRequest) {
   const admin = createAdminClient();
   const { data: purge } = await admin.rpc("newsletter_purge_stale");
   const { data: schoolPurge } = await admin.rpc("school_purge_stale");
+  const rasaDeleted = await purgeExpiredReports(); // hanya jumlah; tanpa data laporan
 
   return NextResponse.json({
     campaigns: campaigns.map((c) => ({
@@ -33,5 +35,6 @@ export async function GET(request: NextRequest) {
     })),
     purge,
     schoolPurge,
+    rasaDeleted,
   });
 }

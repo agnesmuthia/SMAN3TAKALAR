@@ -124,6 +124,18 @@ log, dan revalidasi halaman berjalan.
 | `decrees` | Metadata arsip SK; file di bucket privat `documents` | Tidak; `/admin/arsip-sk` |
 | `library_items` | Koleksi perpustakaan digital | Tidak; `/admin/perpustakaan` |
 
+### Ruang Rasa (sangat sensitif)
+| Tabel | Isi | Ubah langsung? |
+|-------|-----|----------------|
+| `rasa_reports` | Laporan: kode, hash PIN, kategori, status; **isi terenkripsi** | **Jangan.** Tidak ada hak tabel untuk peran mana pun selain service role; Table Editor Dashboard akan menampilkan teks sandi |
+| `rasa_messages` | Balasan petugas/pelapor (terenkripsi) | Jangan |
+| `rasa_handlers` | Guru BK yang ditugaskan | Tidak; `/admin/ruang-rasa` |
+| `rasa_access_log` | Catatan pembukaan/penghapusan tanpa isi | Tidak |
+
+Kolom `app_settings.rasa_retention_months` dan `rasa_notice` diatur lewat `/admin/ruang-rasa`.
+Isi dienkripsi di aplikasi dengan `RASA_ENCRYPTION_KEY`; petugas teknis tidak perlu dan
+tidak boleh mencoba membaca isi laporan. Lihat `PANDUAN_RUANG_RASA.md` §5.
+
 ### Langganan berita (memuat alamat email)
 | Tabel | Isi | Ubah langsung? |
 |-------|-----|----------------|
@@ -203,6 +215,9 @@ manual kecuali disebut di prosedur.
 | `commit_schedule_import()`, `revert_schedule_import()` | Pengelola jadwal | Impor jadwal tanpa menimpa; pembatalan per batch |
 | `newsletter_*` | Server (service role) | Konfirmasi, kirim, berhenti berlangganan, anonimkan |
 | `newsletter_purge_stale()`, `school_purge_stale()` | Cron | Pembersihan data kedaluwarsa |
+| `rasa_list_reports()`, `rasa_get_report()`, `rasa_reply()`, `rasa_set_status()` | Guru BK ditugaskan | Membaca & menangani laporan (pembukaan dicatat) |
+| `admin_set_rasa_handler()`, `admin_rasa_overview()` | Super Admin | Penugasan petugas, ringkasan tanpa isi |
+| `rasa_submit()`, `rasa_reporter_*()`, `rasa_handler_ids()`, `rasa_purge_expired()` | Server (service role) | Alur pelapor anonim, notifikasi, penghapusan otomatis laporan selesai lewat masa simpan |
 | `admin_system_status()` | Super Admin (`/admin/status`) | Pemeriksaan kesehatan baca-saja |
 | `audit_content_change()` | Trigger | Mencatat perubahan konten ke log |
 

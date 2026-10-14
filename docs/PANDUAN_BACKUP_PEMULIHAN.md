@@ -151,6 +151,7 @@ redirect URI di Google Cloud, URL webhook Resend, lalu jalankan smoke test.
 
 Tidak ada di backup mana pun, jadi catat saat berubah:
 - Environment hosting (daftar variabel `.env.example`, berikut nilainya di pengelola sandi).
+- **`RASA_ENCRYPTION_KEY`**: isi laporan Ruang Rasa di backup berupa teks sandi dan **tidak dapat dibaca tanpa kunci ini**. Simpan di pengelola sandi, terpisah dari file backup. Setelah pemulihan ke proyek lain, kunci yang sama harus dipasang.
 - Supabase **Authentication**: provider Google (Client ID; secret di pengelola sandi),
   Site URL, Redirect URLs, template email, pengaturan kata sandi & rate limit.
 - Google Cloud: OAuth consent screen, redirect URI.

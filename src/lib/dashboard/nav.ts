@@ -17,6 +17,7 @@ export const DASHBOARD_NAV: Record<Exclude<UserRole, "admin">, NavItem[]> = {
   ],
   guru_bk: [
     { href: "/dashboard/bk", label: "Ringkasan" },
+    { href: "/dashboard/bk/ruang-rasa", label: "Ruang Rasa" },
     { href: "/dashboard/pengumuman", label: "Pengumuman" },
   ],
 };

@@ -16,7 +16,7 @@ npm run build       # Build produksi
 membuat klaster sementara, memasang stub minimal skema `auth` Supabase
 (`supabase/tests/00_supabase_stub.sql`), menerapkan semua migrasi, menjalankan
 semua berkas `supabase/tests/1*.sql` (alur & RLS: `10_rls_dan_alur`, `11_dashboard`,
-`12_cms_berita`, `13_konten_situs`, `14_administrasi`, `15_operasional`, `16_hak_akses`), lalu menghapus klaster. Database Supabase
+`12_cms_berita`, `13_konten_situs`, `14_administrasi`, `15_operasional`, `16_hak_akses`, `17_ruang_rasa`), lalu menghapus klaster. Database Supabase
 sungguhan tidak disentuh.
 
 ## Pemetaan skenario wajib
@@ -40,7 +40,7 @@ kredensial/konfigurasi nyata tersedia (lihat daftar uji di dokumen terkait).
 | 12 | Unsubscribe berhasil & mencegah pengiriman berikutnya | Otomatis | DB: "alamat yang berhenti berlangganan tidak menerima buletin berikutnya"; unit: token HMAC |
 | 13 | Pengiriman ulang tanpa duplikasi | Otomatis | DB: "enqueue ulang tidak membuat duplikat", "tidak diklaim dua kali"; unit: idempotensi & retry |
 | 14 | Alamat pelanggan tidak terlihat pelanggan lain | Otomatis | Unit: satu penerima per email, isi email tidak memuat alamat lain; `ResendProvider` menolak banyak penerima |
-| 15 | Data Ruang Rasa tidak muncul di buletin | Otomatis | Unit: `toNewsletterArticle` hanya meneruskan kolom publik; template diuji dengan kolom terlarang |
+| 15 | Data Ruang Rasa tidak muncul di buletin | Otomatis | Unit: `toNewsletterArticle` hanya meneruskan kolom publik; tes statis: modul buletin/berita/CMS tidak boleh merujuk Rasa (lihat bagian Ruang Rasa) |
 | 16 | Semua rahasia di environment variables | Diperiksa saat review | `.env.example` hanya placeholder; modul rahasia memakai `server-only` sehingga build gagal bila diimpor dari komponen klien |
 | 17 | Lint, type check, build, pengujian | Otomatis | Perintah di atas |
 
@@ -106,3 +106,16 @@ npm run smoke -- http://localhost:3000   # atau URL produksi setelah deploy
 | Backup/pulih pada proyek Supabase **sungguhan** | **Manual (belum dilakukan)** | `docs/PANDUAN_BACKUP_PEMULIHAN.md` §6 & §10 |
 | Halaman publik 200, halaman privat menolak tanpa login, header keamanan, `/api/health` | Otomatis (per deploy) | `scripts/smoke-test.mjs` (36 pemeriksaan) |
 
+## Ruang Rasa
+
+| Skenario | Status | Bukti |
+|----------|--------|-------|
+| Hanya Guru BK ditugaskan yang dapat membaca; anon, Super Admin, Admin Website, Petugas Administrasi, BK lain, siswa ditolak | Otomatis | DB `17_ruang_rasa.sql` |
+| Tabel Rasa tanpa hak tabel; fungsi pelapor hanya service role; tanpa EXECUTE untuk anon | Otomatis | DB `16_hak_akses.sql` |
+| Pelapor tanpa kolom identitas; membuka laporan tercatat (tanpa isi), daftar tidak mencatat | Otomatis | DB `17_ruang_rasa.sql` |
+| Penghapusan otomatis hanya laporan selesai lewat masa simpan; jejak tanpa isi | Otomatis | DB `17_ruang_rasa.sql` |
+| Enkripsi AES-256-GCM (AAD terikat, bukti kerusakan), kode/PIN, hash PIN, pembatas laju | Otomatis | unit `tests/rasa-crypto.test.ts` |
+| Isolasi: Rasa tidak dirujuk modul buletin/berita/CMS; email tanpa data laporan; log tanpa isi/PIN/kode | Otomatis | unit `tests/security-static.test.ts` |
+| Backup→pulih menyertakan tabel Rasa | Otomatis | `scripts/test-backup-restore.sh` |
+| Alur di browser: kirim, kode+PIN, cek, balas, BK membaca, Super Admin tanpa isi | Otomatis (satu kali, server Supabase **tiruan**; bukan bagian CI) | Playwright, hasil dilaporkan di PR |
+| Seluruh alur dengan Supabase, email, dan hosting **sungguhan** | **Manual (belum dilakukan)** | `PANDUAN_RUANG_RASA.md` §7 |

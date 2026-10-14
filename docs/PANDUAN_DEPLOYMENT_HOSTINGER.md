@@ -76,6 +76,7 @@ Isi di Hostinger (bagian 5, langkah 4). Nilai dari `.env.example` adalah placeho
 | `NEWSLETTER_TOKEN_SECRET` | Ya | Acak ≥ 32 karakter (`openssl rand -base64 48`) |
 | `EMAIL_PROVIDER`, `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_REPLY_TO` | Untuk email | `resend`, API key, alamat pengirim terverifikasi |
 | `RESEND_WEBHOOK_SECRET` | Disarankan | `whsec_…` dari webhook Resend → `https://<domain>/api/newsletter/webhook` |
+| `RASA_ENCRYPTION_KEY` | Untuk Ruang Rasa | **Rahasia.** `openssl rand -base64 32`. Simpan salinan di pengelola sandi, terpisah dari backup. Hilang/diganti = laporan lama tak terbaca ([panduan](PANDUAN_RUANG_RASA.md)) |
 | `CRON_SECRET` | Disarankan | Acak ≥ 16 karakter; sama dengan yang dipakai penjadwal (bagian 7) |
 | `NEXT_PUBLIC_SCHOOL_LOGO_URL`, `NEXT_PUBLIC_SCHOOL_ADDRESS/PHONE/EMAIL` | Tidak | Lebih baik diisi lewat **Admin → Profil Sekolah** |
 
@@ -178,6 +179,10 @@ Centang semua sebelum website diumumkan.
 - [ ] Profil sekolah, kontak, logo resmi (dengan izin), halaman profil terisi dan diperiksa
 - [ ] Tidak ada data contoh/fiktif yang tampil
 - [ ] Kebijakan privasi diperiksa pihak sekolah
+
+**Ruang Rasa** (bila diaktifkan)
+- [ ] `RASA_ENCRYPTION_KEY` terisi dan disimpan terpisah dari backup
+- [ ] Guru BK ditugaskan, prosedur darurat sekolah terpasang, daftar uji `PANDUAN_RUANG_RASA.md` §7 lulus
 
 **Data**
 - [ ] Backup pertama (database + Storage) dibuat dan disimpan di 2 lokasi

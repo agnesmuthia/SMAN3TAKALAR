@@ -17,7 +17,7 @@ function walk(dir: string): string[] {
 const files = walk(SRC).map((path) => ({ path: relative(ROOT, path), text: readFileSync(path, "utf8") }));
 
 describe("server action", () => {
-  const GUARD = /await (guard|contentPublisher|newsActionContext|staffActionContext|publisher|schoolAdmin|libraryManager|requireUser|activeMember|activeTeacher)\(/;
+  const GUARD = /await (guard|contentPublisher|newsActionContext|staffActionContext|publisher|schoolAdmin|libraryManager|requireUser|activeMember|activeTeacher|bkContext|adminOnly)\(/;
   // Aksi publik yang memang tanpa login; masing-masing punya perlindungan lain.
   const PUBLIC = new Set([
     "signInAction", // Supabase Auth + rate limit bawaan Supabase
@@ -27,6 +27,8 @@ describe("server action", () => {
     "subscribeAction", // rate limit + double opt-in
     "confirmAction", // token hash sekali pakai
     "unsubscribeAction", // token HMAC
+    "submitRasaReportAction", // Ruang Rasa: pelapor anonim; batas per IP, honeypot, isi terenkripsi
+    "checkRasaAction", // Ruang Rasa: kode + PIN ber-hash, batas percobaan per kode & IP
   ]);
   const actionFiles = files.filter((f) => /^\s*["']use server["']/.test(f.text));
 
@@ -60,6 +62,8 @@ describe("service role (melewati RLS)", () => {
     "src/app/api/newsletter/webhook/route.ts", // webhook bertanda tangan Svix
     "src/lib/cms/storage.ts", // unggah file (dipanggil setelah cek izin)
     "src/lib/newsletter/service.ts", // alur langganan publik
+    "src/lib/rasa/notify.ts", // email singkat ke petugas Ruang Rasa (tanpa isi laporan)
+    "src/lib/rasa/service.ts", // alur pelapor tanpa login; hanya fungsi database khusus Ruang Rasa
     "src/lib/school/documents.ts", // PDF privat (setelah cek izin/RLS)
     "src/lib/supabase/admin.ts", // definisi klien
   ].sort();
@@ -99,3 +103,46 @@ describe("rahasia & HTML", () => {
     expect(offenders).toEqual([]);
   });
 });
+
+describe("isolasi Ruang Rasa", () => {
+  const strip = (text: string) => text.replace(/\/\/.*$/gm, "");
+  const OWNERS = [
+    "src/lib/rasa/",
+    "src/app/ruang-rasa/",
+    "src/components/rasa/",
+    "src/app/dashboard/bk/",
+    "src/app/admin/ruang-rasa/",
+  ];
+  const owned = (path: string) => OWNERS.some((prefix) => path.startsWith(prefix));
+
+  it("tabel dan fungsi rasa_ hanya dirujuk oleh modul Ruang Rasa sendiri", () => {
+    const offenders = files.filter((f) => !owned(f.path) && /\brasa_[a-z_]+/.test(strip(f.text))).map((f) => f.path);
+    expect(offenders).toEqual([]);
+  });
+
+  it("hanya modul yang berwenang mengimpor lib/rasa", () => {
+    const allowed = new Set(["src/app/api/cron/newsletter/route.ts", "src/lib/ops/config-status.ts"]);
+    const offenders = files.filter((f) => !owned(f.path) && !allowed.has(f.path) && f.text.includes("@/lib/rasa/")).map((f) => f.path);
+    expect(offenders).toEqual([]);
+  });
+
+  it("buletin, langganan, berita, dan galeri tidak menyentuh Ruang Rasa", () => {
+    const zones = ["src/lib/newsletter/", "src/app/langganan/", "src/app/admin/langganan/", "src/app/api/newsletter/", "src/lib/news", "src/app/berita/", "src/app/admin/berita/", "src/lib/cms/", "src/lib/content/"];
+    const offenders = files.filter((f) => zones.some((z) => f.path.startsWith(z)) && /ruang[- ]rasa|rasa_|lib\/rasa|\bRasa[A-Z]/.test(strip(f.text))).map((f) => f.path);
+    expect(offenders).toEqual([]);
+  });
+
+  it("email pemberitahuan tidak memuat data laporan", () => {
+    const notify = files.find((f) => f.path === "src/lib/rasa/notify.ts")!.text;
+    expect(/decryptText|\.content|category|urgent/.test(strip(notify))).toBe(false);
+  });
+
+  it("tidak ada console.* yang mencetak isi laporan", () => {
+    const offenders = files
+      .filter((f) => f.path.startsWith("src/lib/rasa/") || f.path.startsWith("src/app/ruang-rasa/") || f.path.startsWith("src/app/dashboard/bk/"))
+      .filter((f) => /console\.\w+\([^)]*(?<!error\.)\b(body|content|text|pin|code|sealed|payload)\b/.test(strip(f.text)))
+      .map((f) => f.path);
+    expect(offenders).toEqual([]);
+  });
+});
+
