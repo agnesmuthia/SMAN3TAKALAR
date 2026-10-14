@@ -16,7 +16,7 @@ npm run build       # Build produksi
 membuat klaster sementara, memasang stub minimal skema `auth` Supabase
 (`supabase/tests/00_supabase_stub.sql`), menerapkan semua migrasi, menjalankan
 semua berkas `supabase/tests/1*.sql` (alur & RLS: `10_rls_dan_alur`, `11_dashboard`,
-`12_cms_berita`, `13_konten_situs`), lalu menghapus klaster. Database Supabase
+`12_cms_berita`, `13_konten_situs`, `14_administrasi`), lalu menghapus klaster. Database Supabase
 sungguhan tidak disentuh.
 
 ## Pemetaan skenario wajib
@@ -62,4 +62,17 @@ kredensial/konfigurasi nyata tersedia (lihat daftar uji di dokumen terkait).
 | Pengumuman internal tidak terbaca pengunjung; pengumuman publik terbaca | Otomatis | DB `11_dashboard.sql`, `13_konten_situs.sql` |
 | Grid kalender (mulai Senin, kegiatan beberapa hari) | Otomatis | unit `tests/calendar.test.ts` |
 | Unggah foto ke bucket `site-media` | **Manual** (butuh proyek Supabase nyata) | `docs/PANDUAN_MENGELOLA_HALAMAN.md` §4 |
+
+## Administrasi sekolah (Tahap 5)
+
+| Skenario | Status | Bukti |
+|----------|--------|-------|
+| Hanya Super Admin & Petugas Administrasi mengelola tahun ajaran/semester/SK | Otomatis | DB `14_administrasi.sql`: "Admin Website tidak dapat membuat tahun ajaran", "… mengelola arsip SK" |
+| Hanya satu semester aktif | Otomatis | DB: "hanya satu semester aktif; tahun ajarannya ikut aktif" |
+| Impor tidak menimpa data lama; batch tidak dapat diimpor dua kali; pembatalan hanya menghapus baris batch | Otomatis | DB: "impor tidak menimpa jadwal yang sudah ada", "membatalkan impor hanya menghapus baris dari batch tersebut" |
+| Pembacaan CSV/XLSX, laporan per baris, duplikat, bentrok guru/kelas, batas baris | Otomatis | unit `tests/schedule-import.test.ts` (termasuk file XLSX nyata `tests/fixtures/jadwal-contoh.xlsx`) |
+| Validasi PDF (isi, ukuran, skrip) | Otomatis | unit `tests/pdf.test.ts` |
+| SK tidak tampil sebelum diperiksa; SK internal hanya untuk anggota aktif | Otomatis | DB: "SK tidak dapat ditampilkan sebelum diperiksa", "akun pending tidak melihat SK internal" |
+| Bucket dokumen privat | Otomatis | DB: "bucket dokumen bersifat privat" |
+| Unggah/unduh PDF ke Supabase Storage nyata (tautan sementara) | **Manual** (butuh proyek Supabase nyata) | `docs/PANDUAN_ADMINISTRASI_SEKOLAH.md` §5 |
 

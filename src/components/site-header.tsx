@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getAuthContext, getStaffAccess } from "@/lib/auth/dal";
+import { getAuthContext, getStaffAccess, hasAdminArea } from "@/lib/auth/dal";
 import { homeForRole } from "@/lib/auth/routing";
 import { getSiteProfile } from "@/lib/content/site-profile";
 import { siteConfig } from "@/lib/site";
@@ -13,6 +13,7 @@ const NAV = [
   { href: "/galeri", label: "Galeri" },
   { href: "/prestasi", label: "Prestasi" },
   { href: "/kalender", label: "Kalender" },
+  { href: "/perpustakaan", label: "Perpustakaan" },
 ];
 
 export async function SiteHeader() {
@@ -23,7 +24,7 @@ export async function SiteHeader() {
   const accountLabel = role ? "Dashboard" : "Akun";
   // Guru yang juga Editor/Admin Website mendapat pintasan ke CMS.
   const access = signedIn ? await getStaffAccess() : null;
-  const showCms = Boolean(access?.canWrite && role !== "admin");
+  const showCms = Boolean(access && hasAdminArea(access) && role !== "admin");
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75">
@@ -37,7 +38,7 @@ export async function SiteHeader() {
         </Link>
 
         {/* Desktop */}
-        <nav aria-label="Navigasi utama" className="hidden items-center gap-0.5 text-sm font-medium lg:flex">
+        <nav aria-label="Navigasi utama" className="hidden items-center gap-0.5 text-sm font-medium xl:flex">
           {NAV.map((item) => (
             <Link key={item.href} href={item.href} className="rounded-lg px-2.5 py-2 text-slate-700 transition hover:bg-surface hover:text-navy-900">
               {item.label}
@@ -57,7 +58,7 @@ export async function SiteHeader() {
         </nav>
 
         {/* Ponsel: menu tanpa JavaScript */}
-        <details className="group relative lg:hidden">
+        <details className="group relative xl:hidden">
           <summary className="flex cursor-pointer list-none items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-navy-900 [&::-webkit-details-marker]:hidden">
             <svg aria-hidden width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M4 7h16M4 12h16M4 17h16" className="group-open:hidden" />

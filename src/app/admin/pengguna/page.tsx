@@ -70,15 +70,20 @@ export default async function PenggunaPage({ searchParams }: PageProps<"/admin/p
                     <br />
                     <span className="text-slate-500">{p ? STATUS_LABEL[p.status] : "—"}</span>
                     {p?.status === "active" && p.role !== "admin" && (
-                      <ActionForm action={setStaffRolesAction} submitLabel="Simpan peran CMS" className="mt-2 flex flex-wrap items-center gap-3 text-xs" submitClassName="btn-secondary !px-2 !py-1 text-xs">
+                      <ActionForm action={setStaffRolesAction} submitLabel="Simpan peran staf" className="mt-2 flex flex-wrap items-center gap-3 text-xs" submitClassName="btn-secondary !px-2 !py-1 text-xs">
                         <input type="hidden" name="userId" value={u.id} />
-                        <span className="text-slate-500">CMS:</span>
+                        <span className="text-slate-500">Peran staf:</span>
                         <label className="flex items-center gap-1">
                           <input type="checkbox" name="staffRoles" value="editor" defaultChecked={staffById.get(u.id)?.has("editor")} /> Editor
                         </label>
                         <label className="flex items-center gap-1">
                           <input type="checkbox" name="staffRoles" value="admin_website" defaultChecked={staffById.get(u.id)?.has("admin_website")} /> Admin Website
                         </label>
+                        {p.role !== "siswa" && (
+                          <label className="flex items-center gap-1">
+                            <input type="checkbox" name="staffRoles" value="administrasi" defaultChecked={staffById.get(u.id)?.has("administrasi")} /> Petugas Administrasi
+                          </label>
+                        )}
                       </ActionForm>
                     )}
                     {p?.role === "siswa" && (

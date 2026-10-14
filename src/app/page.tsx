@@ -205,23 +205,18 @@ export default async function HomePage() {
       )}
 
       <section className="mx-auto grid max-w-6xl gap-6 px-4 lg:grid-cols-2" aria-label="Layanan">
-        <a
-          href={PORTAL_BUKU_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group card card-hover relative overflow-hidden !p-8"
-        >
+        <div className="card relative overflow-hidden !p-8">
           <span aria-hidden className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-teal-50" />
           <p className="eyebrow relative">Perpustakaan digital</p>
-          <h2 className="relative mt-2 text-xl font-bold text-navy-900">Portal Buku Kemendikdasmen</h2>
+          <h2 className="relative mt-2 text-xl font-bold text-navy-900">Bacaan & bahan belajar</h2>
           <p className="relative mt-2 text-sm leading-relaxed text-slate-600">
-            Akses buku teks dan bacaan resmi dari Kementerian Pendidikan Dasar dan Menengah. Tautan membuka situs
-            resmi di tab baru.
+            Koleksi digital sekolah dan tautan ke Portal Buku Kemendikdasmen untuk buku teks dan bacaan resmi.
           </p>
-          <span className="relative mt-5 inline-flex items-center gap-1 text-sm font-semibold text-teal-700">
-            Buka portal <span aria-hidden className="transition group-hover:translate-x-0.5">↗</span>
-          </span>
-        </a>
+          <div className="relative mt-5 flex flex-wrap gap-4 text-sm font-semibold">
+            <Link href="/perpustakaan" className="text-teal-700 hover:underline">Buka perpustakaan <span aria-hidden>→</span></Link>
+            <a href={PORTAL_BUKU_URL} target="_blank" rel="noopener noreferrer" className="text-teal-700 hover:underline">Portal Buku Kemendikdasmen <span aria-hidden>↗</span></a>
+          </div>
+        </div>
         <SubscribeForm source="beranda" />
       </section>
     </>

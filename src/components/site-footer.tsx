@@ -11,6 +11,8 @@ const EXPLORE = [
   { href: "/galeri", label: "Galeri" },
   { href: "/prestasi", label: "Prestasi" },
   { href: "/kalender", label: "Kalender kegiatan" },
+  { href: "/perpustakaan", label: "Perpustakaan digital" },
+  { href: "/dokumen", label: "Arsip SK" },
 ];
 
 export async function SiteFooter() {

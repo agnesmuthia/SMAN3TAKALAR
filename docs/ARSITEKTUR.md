@@ -38,7 +38,9 @@ Peran dasar `admin` (= Super Admin), `guru`, `siswa`, `guru_bk`, ditambah status
 `pending`/`active`/`disabled`. Peran staf CMS di tabel `staff_roles`: `admin_website`
 (menerbitkan berita, mengelola konten situs & pengumuman) dan `editor` (menulis & mengirim untuk persetujuan), berlaku di atas peran
 dasar. Detail: `docs/peran-dan-verifikasi.md`, `docs/PANDUAN_ADMIN_WEBSITE.md`.
-Petugas Administrasi dan Petugas Teknis belum diimplementasikan (Tahap 5–6).
+Peran staf `administrasi` (Petugas Administrasi) mengelola tahun ajaran, jadwal & impor,
+arsip SK, dan perpustakaan. Petugas Teknis tidak berupa peran aplikasi: akses database
+hanya lewat Supabase Dashboard (lihat `docs/PANDUAN_DATABASE.md`).
 
 ## Modul & tabel
 
@@ -48,6 +50,7 @@ Petugas Administrasi dan Petugas Teknis belum diimplementasikan (Tahap 5–6).
 | Berita & CMS | `news`, `news_categories`, `news_tags`, `news_tag_links`, `news_revisions`, `staff_roles`; Storage bucket `news-images` | `src/app/berita`, `src/app/admin/berita`, `src/lib/cms`, `src/components/cms` |
 | Langganan berita | `newsletter_subscribers`, `newsletter_confirmation_tokens`, `newsletter_suppression_records`, `newsletter_templates`, `newsletter_campaigns`, `newsletter_campaign_items`, `newsletter_deliveries`, `newsletter_delivery_events`, `rate_limit_hits` | `src/lib/newsletter`, `src/app/langganan`, `src/app/admin/langganan` |
 | Konten situs | `site_profile`, `site_pages`, `school_programs`, `gallery_albums`, `gallery_photos`, `achievements`, `calendar_events`; Storage bucket `site-media` | `src/app/{profil,galeri,prestasi,kalender,pengumuman}`, `src/app/admin/{profil-sekolah,halaman,program,galeri,prestasi,kalender}`, `src/app/admin/konten/actions.ts`, `src/lib/content` |
+| Administrasi sekolah | `academic_years`, `semesters`, `schedule_import_batches`, `decrees`, `library_items`; kolom `schedule_entries.semester_id/import_batch_id`; Storage bucket **privat** `documents` | `src/app/admin/{tahun-ajaran,jadwal,arsip-sk,perpustakaan}`, `src/app/admin/sekolah/actions.ts`, `src/app/{dokumen,perpustakaan}`, `src/lib/school` |
 | Dashboard internal | `announcements`, `announcement_reads`, `schedule_entries`, `assignments` | `src/app/dashboard`, `src/app/admin/pengumuman`, `src/app/admin/jadwal` |
 | Pengaturan | `app_settings` | `src/app/admin/pengaturan` |
 
@@ -70,5 +73,5 @@ docs/           dokumentasi
 
 ## Hal yang belum ada
 
-Tahun ajaran & impor, arsip SK, perpustakaan digital, Ruang Rasa, konfigurasi Hostinger,
+Ruang Rasa, konfigurasi Hostinger,
 prosedur backup. Lihat `docs/AUDIT_DAN_RENCANA.md`.

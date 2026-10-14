@@ -373,58 +373,6 @@ export async function deleteAnnouncementAction(_prev: State, formData: FormData)
   redirect("/admin/pengumuman");
 }
 
-const timeField = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Format jam harus HH:MM.");
-const scheduleSchema = z
-  .object({
-    className: z.string().trim().min(1, "Kelas wajib diisi.").max(40),
-    day: z.coerce.number().int().min(1).max(6),
-    start: timeField,
-    end: timeField,
-    subject: z.string().trim().min(1, "Mata pelajaran wajib diisi.").max(100),
-    teacherId: z.union([z.uuid(), z.literal("")]),
-    room: z.string().trim().max(40),
-  })
-  .refine((v) => v.end > v.start, { message: "Jam selesai harus setelah jam mulai.", path: ["end"] });
-
-export async function saveScheduleEntryAction(_prev: State, formData: FormData): Promise<State> {
-  const ctx = await guard();
-  if (!ctx) return fail("Akses ditolak.");
-  const parsed = scheduleSchema.safeParse({
-    className: formData.get("className") ?? "",
-    day: formData.get("day"),
-    start: formData.get("start") ?? "",
-    end: formData.get("end") ?? "",
-    subject: formData.get("subject") ?? "",
-    teacherId: formData.get("teacherId") ?? "",
-    room: formData.get("room") ?? "",
-  });
-  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Data tidak valid.");
-  const v = parsed.data;
-  const { error } = await ctx.supabase.from("schedule_entries").insert({
-    class_name: v.className,
-    day_of_week: v.day,
-    start_time: v.start,
-    end_time: v.end,
-    subject: v.subject,
-    teacher_id: v.teacherId || null,
-    room: v.room || null,
-  });
-  if (error) return fail("Jadwal gagal disimpan.");
-  revalidatePath("/admin/jadwal");
-  return ok("Jadwal ditambahkan.");
-}
-
-export async function deleteScheduleEntryAction(_prev: State, formData: FormData): Promise<State> {
-  const ctx = await guard();
-  if (!ctx) return fail("Akses ditolak.");
-  const id = z.uuid().safeParse(formData.get("id"));
-  if (!id.success) return fail("Data tidak valid.");
-  const { error } = await ctx.supabase.from("schedule_entries").delete().eq("id", id.data);
-  if (error) return fail("Jadwal gagal dihapus.");
-  revalidatePath("/admin/jadwal");
-  return ok("Jadwal dihapus.");
-}
-
 export async function setStudentClassAction(_prev: State, formData: FormData): Promise<State> {
   const ctx = await guard();
   if (!ctx) return fail("Akses ditolak.");
@@ -442,7 +390,12 @@ export async function setStaffRolesAction(_prev: State, formData: FormData): Pro
   if (!ctx) return fail("Akses ditolak.");
   const userId = z.uuid().safeParse(formData.get("userId"));
   if (!userId.success) return fail("Data tidak valid.");
-  const roles = formData.getAll("staffRoles").map(String).filter((r) => r === "admin_website" || r === "editor");
+  const roles = formData.getAll("staffRoles").map(String).filter((r) => r === "admin_website" || r === "editor" || r === "administrasi");
+  if (roles.includes("administrasi")) {
+    // Petugas Administrasi mengakses arsip SK internal: tidak untuk akun siswa.
+    const { data: target } = await ctx.supabase.from("profiles").select("role").eq("id", userId.data).maybeSingle<{ role: string | null }>();
+    if (!target || target.role === "siswa") return fail("Peran Petugas Administrasi tidak dapat diberikan kepada akun siswa.");
+  }
   const { error } = await ctx.supabase.rpc("admin_set_staff_roles", { p_user_id: userId.data, p_roles: roles });
   if (error) {
     if (error.message.includes("profile_not_active")) return fail("Peran staf hanya untuk akun aktif.");

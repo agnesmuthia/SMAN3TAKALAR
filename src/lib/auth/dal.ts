@@ -94,15 +94,21 @@ export async function assertAdmin(): Promise<AuthContext & { user: User; profile
 // Akses staf CMS (Super Admin = role admin; Admin Website; Editor)
 // -----------------------------------------------------------------------------
 
-export type StaffRole = "admin_website" | "editor";
+export type StaffRole = "admin_website" | "editor" | "administrasi";
 export type StaffAccess = {
   isSuperAdmin: boolean;
   roles: StaffRole[];
   canPublish: boolean;
   canWrite: boolean;
+  // Tahun ajaran, jadwal & impor, arsip SK (Super Admin & Petugas Administrasi).
+  canManageSchool: boolean;
+  // Perpustakaan digital (penerbit konten & Petugas Administrasi).
+  canManageLibrary: boolean;
 };
 
-const NO_ACCESS: StaffAccess = { isSuperAdmin: false, roles: [], canPublish: false, canWrite: false };
+const NO_ACCESS: StaffAccess = {
+  isSuperAdmin: false, roles: [], canPublish: false, canWrite: false, canManageSchool: false, canManageLibrary: false,
+};
 
 export const getStaffAccess = cache(async (): Promise<StaffAccess> => {
   const ctx = await getAuthContext();
@@ -111,8 +117,20 @@ export const getStaffAccess = cache(async (): Promise<StaffAccess> => {
   const { data } = await ctx.supabase.from("staff_roles").select("role").eq("user_id", ctx.user.id);
   const roles = ((data ?? []) as { role: StaffRole }[]).map((r) => r.role);
   const canPublish = isSuperAdmin || roles.includes("admin_website");
-  return { isSuperAdmin, roles, canPublish, canWrite: canPublish || roles.includes("editor") };
+  const administrasi = roles.includes("administrasi");
+  return {
+    isSuperAdmin,
+    roles,
+    canPublish,
+    canWrite: canPublish || roles.includes("editor"),
+    canManageSchool: isSuperAdmin || administrasi,
+    canManageLibrary: canPublish || administrasi,
+  };
 });
+
+export function hasAdminArea(access: StaffAccess): boolean {
+  return access.isSuperAdmin || access.canWrite || access.canManageSchool || access.canManageLibrary;
+}
 
 type StaffContext = AuthContext & { user: User; profile: Profile & { role: UserRole } } & { access: StaffAccess };
 
@@ -120,10 +138,22 @@ type StaffContext = AuthContext & { user: User; profile: Profile & { role: UserR
 export async function requireAdminArea(nextPath: string): Promise<StaffContext> {
   const ctx = await requireRole("any", nextPath);
   const access = await getStaffAccess();
-  if (!access.isSuperAdmin && !access.canWrite) {
+  if (!hasAdminArea(access)) {
     redirect(`${homeForRole(ctx.profile.role)}?error=akses_ditolak`);
   }
   return { ...ctx, access };
+}
+
+export async function requireSchoolAdmin(nextPath: string): Promise<StaffContext> {
+  const ctx = await requireAdminArea(nextPath);
+  if (!ctx.access.canManageSchool) redirect("/admin?error=akses_ditolak");
+  return ctx;
+}
+
+export async function requireLibraryManager(nextPath: string): Promise<StaffContext> {
+  const ctx = await requireAdminArea(nextPath);
+  if (!ctx.access.canManageLibrary) redirect("/admin?error=akses_ditolak");
+  return ctx;
 }
 
 export async function requireNewsWriter(nextPath: string): Promise<StaffContext> {
@@ -139,10 +169,17 @@ export async function requireNewsPublisher(nextPath: string): Promise<StaffConte
 }
 
 // Untuk server action: kembalikan null (bukan redirect) bila tidak berhak.
-export async function newsActionContext(): Promise<(AuthContext & { user: User; profile: Profile; access: StaffAccess }) | null> {
+type ActionContext = AuthContext & { user: User; profile: Profile; access: StaffAccess };
+
+export async function staffActionContext(): Promise<ActionContext | null> {
   const ctx = await getAuthContext();
   if (!ctx?.user || ctx.profile?.status !== "active") return null;
   const access = await getStaffAccess();
-  if (!access.canWrite) return null;
+  if (!hasAdminArea(access)) return null;
   return { ...(ctx as AuthContext & { user: User; profile: Profile }), access };
+}
+
+export async function newsActionContext(): Promise<ActionContext | null> {
+  const ctx = await staffActionContext();
+  return ctx?.access.canWrite ? ctx : null;
 }

@@ -51,7 +51,11 @@ dengan peran seminimal mungkin), terpisah dari akun admin website.
 | `achievements` | Prestasi | Tidak; gunakan `/admin/prestasi` |
 | `calendar_events` | Kalender kegiatan (publik/internal) | Tidak; gunakan `/admin/kalender` |
 | `announcements`, `announcement_reads` | Pengumuman (publik & internal) | Tidak; gunakan `/admin/pengumuman` |
-| `schedule_entries` | Jadwal pelajaran | Tidak; gunakan `/admin/jadwal` |
+| `schedule_entries` | Jadwal pelajaran (kolom `semester_id`, `import_batch_id`) | Tidak; gunakan `/admin/jadwal` |
+| `academic_years`, `semesters` | Tahun ajaran & semester (satu aktif) | Tidak; gunakan `/admin/tahun-ajaran` |
+| `schedule_import_batches` | Pratinjau & riwayat impor jadwal (laporan per baris) | Tidak; gunakan `/admin/jadwal/impor` |
+| `decrees` | Metadata arsip SK (file di bucket privat `documents`) | Tidak; gunakan `/admin/arsip-sk` |
+| `library_items` | Koleksi perpustakaan digital | Tidak; gunakan `/admin/perpustakaan` |
 | `assignments` | Tugas & materi guru | Tidak; dikelola guru |
 | `newsletter_*` | Data langganan email (memuat alamat email) | **Tidak**; gunakan `/admin/langganan` |
 | `app_settings` | Pengaturan aplikasi | Tidak; gunakan `/admin/pengaturan` |
@@ -64,6 +68,9 @@ dengan peran seminimal mungkin), terpisah dari akun admin website.
   hanya JPG/PNG/WebP). Lokasi: **Storage → news-images**.
 - Bucket `site-media` menyimpan logo, gambar hero, foto galeri, prestasi, dan program
   (aturan sama: publik dibaca, maks. 5 MB, JPG/PNG/WebP).
+- Bucket **`documents` bersifat PRIVAT** (maks. 10 MB, hanya PDF): file SK (`sk/…`) dan PDF
+  perpustakaan (`perpustakaan/…`). Jangan mengubahnya menjadi publik. Unduhan dilayani lewat
+  tautan sementara 60 detik setelah aplikasi memeriksa hak baca.
 - Unggahan hanya lewat CMS (server memeriksa izin dan isi file). Tidak ada policy tulis
   untuk browser.
 - Nama file acak per tahun/bulan (mis. `2026/10/<acak>.jpg`).
