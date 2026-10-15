@@ -16,9 +16,9 @@ harus diperiksa saat deployment (Tahap 8).
 | Pemeriksaan | Berkas | Isi |
 |-------------|--------|-----|
 | Hak akses database | `supabase/tests/16_hak_akses.sql` | Pengunjung (anon) hanya bisa **membaca** 16 tabel konten publik yang disetujui; tanpa hak tulis; hanya 1 fungsi yang bisa dipanggil; semua `SECURITY DEFINER` menetapkan `search_path`; fungsi trigger tidak bisa dipanggil langsung; RLS aktif di semua tabel; bucket dokumen privat |
-| RLS per fitur | `supabase/tests/10`–`15_*.sql` | 220+ asersi perilaku per peran (234 bersama audit hak akses) |
-| Server action | `tests/security-static.test.ts` | **Setiap** server action memanggil pemeriksa izin di baris awal, kecuali 7 aksi publik yang terdaftar beserta alasannya |
-| Service role | `tests/security-static.test.ts` | Hanya dipakai di 11 file yang sudah ditinjau; tidak pernah di komponen klien |
+| RLS per fitur | `supabase/tests/10`–`15_*.sql`, `17_ruang_rasa.sql` | 260+ asersi perilaku per peran (278 bersama audit hak akses dan Ruang Rasa) |
+| Server action | `tests/security-static.test.ts` | **Setiap** server action memanggil pemeriksa izin di baris awal, kecuali 9 aksi publik yang terdaftar beserta alasannya |
+| Service role | `tests/security-static.test.ts` | Hanya dipakai di 13 file yang sudah ditinjau; tidak pernah di komponen klien |
 | HTML mentah | `tests/security-static.test.ts` | `dangerouslySetInnerHTML` hanya di `article-body.tsx` yang menyanitasi ulang |
 | Rahasia di kode | `tests/security-static.test.ts` | Tidak ada pola kunci/token/private key; tidak ada `NEXT_PUBLIC_*` berisi rahasia; tidak ada `eval` |
 | CSP | `tests/csp.test.ts` + pemeriksaan browser | Nonce per permintaan; tanpa `unsafe-eval`/`unsafe-inline` untuk skrip di produksi |
@@ -48,6 +48,7 @@ tertentu; **Rendah** = pengerasan/praktik baik.
 | K10 | Penyedia email `console` mencetak isi email ke log | Rendah | **Sudah aman:** ditolak otomatis di produksi (`NODE_ENV=production`) |
 | K11 | Log server dapat memuat data pribadi | Rendah | **Diperiksa:** log hanya mencatat kode/pesan error, bukan email/NIS/isi formulir |
 | K12 | Belum ada MFA (verifikasi dua langkah) untuk akun admin website | Sedang | **Rekomendasi** (R3): fitur aplikasi untuk tahap lanjutan |
+| K13 | Modul **Ruang Rasa** menyimpan data paling sensitif (laporan perundungan, mungkin identitas anak) | Tinggi | **Dikendalikan:** tanpa hak tabel; akses hanya fungsi yang memeriksa penugasan Guru BK; isi dienkripsi AES-256-GCM di aplikasi; PIN di-hash scrypt; pembatas laju + honeypot; catatan akses tanpa isi; penghapusan otomatis; email tanpa isi; tes statis menjaga isolasi dari buletin/berita. **Sisa risiko:** pemegang akses DB sekaligus kunci hosting dapat mendekripsi; kunci hilang = data tak terbaca; rotasi kunci belum ada; belum diuji dengan layanan sungguhan (`PANDUAN_RUANG_RASA.md` §5) |
 
 Kontrol yang diperiksa dan dinilai **memadai** (tanpa perubahan):
 - Peran tidak pernah diambil dari metadata login/Google; perubahan peran hanya lewat
@@ -86,7 +87,7 @@ Kontrol yang diperiksa dan dinilai **memadai** (tanpa perubahan):
 | R4 | Minimal dua Super Admin aktif; tinjau peran staf dan Log Aktivitas bulanan | Super Admin | Rutin |
 | R5 | Jalankan `npm run smoke -- https://<domain>` setelah setiap deploy | Petugas teknis | Rutin |
 | R6 | Lakukan uji pemulihan pertama di proyek uji, lalu tiap semester | Petugas teknis | Segera setelah proyek dibuat |
-| R7 | Ulangi audit ini setiap ada modul baru yang menyimpan data sensitif (terutama **Ruang Rasa**) atau setidaknya setahun sekali | Pengembang | Berkala |
+| R7 | Ulangi audit ini setiap ada modul baru yang menyimpan data sensitif (Ruang Rasa sudah masuk audit ini sebagai K13; tinjau ulang bila berubah) atau setidaknya setahun sekali | Pengembang | Berkala |
 
 ## 5. Cara menjalankan pemeriksaan
 

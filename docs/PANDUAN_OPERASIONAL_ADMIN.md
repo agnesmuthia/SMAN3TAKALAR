@@ -132,4 +132,4 @@ repository.
 - Menjalankan perintah SQL (tidak tersedia, dan memang tidak disediakan).
 - Mengubah struktur database atau memulihkan backup (petugas teknis, dengan persetujuan).
 - Mengatur Google Login dan domain email (dasbor Supabase/Resend oleh petugas teknis).
-- Menyimpan laporan Ruang Rasa (modul belum dibangun; menunggu kebijakan sekolah).
+- Membaca laporan Ruang Rasa (hanya Guru BK yang ditugaskan; Super Admin hanya mengatur petugas dan kebijakan: `PANDUAN_RUANG_RASA.md`).

@@ -79,7 +79,7 @@ endpoint SQL bebas, dan admin konten tidak perlu membuka database untuk pekerjaa
 |---|-----------|-----------------------------|------------------------|
 | 1 | Identitas SMATRIK, logo & foto asli | Nama situs masih "SMA Negeri 3 Takalar"; **tidak ada aset logo/foto** di `public/` | **Menunggu sekolah:** nama tampil & logo/foto resmi belum diberikan; logo dapat diunggah lewat Admin → Profil Sekolah tanpa coding |
 | 2 | Palet Modern Academic (Navy/Teal/Gold) | Palet berbeda (biru/emas); perlu diganti | ✅ Palet Navy/Teal/Gold (`DESIGN_SYSTEM.md`) |
-| 3 | Beranda lengkap (unggulan, program, prestasi, galeri, kalender, perpustakaan, Ruang Rasa) | Baru hero, berita terbaru, langganan | ✅ Semua bagian kecuali Ruang Rasa; tampil hanya bila datanya ada |
+| 3 | Beranda lengkap (unggulan, program, prestasi, galeri, kalender, perpustakaan, Ruang Rasa) | Baru hero, berita terbaru, langganan | ✅ Semua bagian, termasuk pita Ruang Rasa; tampil hanya bila datanya ada |
 | 4 | Portal berita editorial (kategori, cari, filter) | Baru daftar + pagination | ✅ Kategori, tag, pencarian, berita utama, pagination |
 | 5 | CMS berita: rich-text, unggah gambar, kategori/tag, jadwal, persetujuan, pratinjau, arsip/pulihkan, riwayat | Hanya form teks biasa, status draf/terbit/arsip | ✅ Tiptap + sanitasi, unggah gambar, kategori/tag, jadwal terbit, persetujuan, pratinjau, arsip, riwayat & pulihkan revisi |
 | 6 | Peran: Super Admin, Admin Website, Editor, Petugas Administrasi, Guru BK, Petugas Teknis | Hanya `admin`, `guru`, `siswa`, `guru_bk` | ✅ Super Admin, Admin Website, Editor, Petugas Administrasi, Guru BK. Petugas Teknis = akses Supabase Dashboard (bukan peran aplikasi) |
@@ -89,7 +89,7 @@ endpoint SQL bebas, dan admin konten tidak perlu membuka database untuk pekerjaa
 | 10 | Tahun ajaran, semester, impor jadwal CSV/XLSX dengan pratinjau & laporan per baris | Belum ada (jadwal manual) | ✅ Tahun ajaran/semester, impor dengan pratinjau, laporan per baris, tanpa menimpa, dapat dibatalkan |
 | 11 | Arsip SK (PDF, metadata, masih berlaku/arsip) | Belum ada | ✅ Arsip SK di bucket privat, wajib konfirmasi pemeriksaan |
 | 12 | Perpustakaan digital + tautan Portal Buku Kemendikdasmen | Belum ada | ✅ Perpustakaan + Portal Buku Kemendikdasmen |
-| 13 | **Ruang Rasa & pelaporan bullying** | **Belum pernah dibangun** (master prompt menyebut "telah dirancang", tetapi tidak ada kode, tabel, atau spesifikasi di repo) | **Belum dibangun:** menunggu keputusan kebijakan sekolah (bagian 9) |
+| 13 | **Ruang Rasa & pelaporan bullying** | **Belum pernah dibangun** (master prompt menyebut "telah dirancang", tetapi tidak ada kode, tabel, atau spesifikasi di repo) | ✅ Dibangun setelah sekolah memutuskan kebijakan (bagian 9); **belum diuji dengan Supabase sungguhan** |
 | 14 | Penyimpanan file (gambar, PDF) | Belum ada | ✅ Supabase Storage (`news-images`, `site-media`, `documents` privat) |
 | 15 | Backup & pemulihan terdokumentasi dan teruji | Belum ada | ✅ Skrip & uji otomatis (`PANDUAN_BACKUP_PEMULIHAN.md`); **uji di Supabase sungguhan menunggu proyek produksi** |
 | 16 | Deployment Hostinger | Belum ada konfigurasi/panduan | ✅ Panduan & checklist (`PANDUAN_DEPLOYMENT_HOSTINGER.md`); **pemasangan menunggu akses Hostinger** |
@@ -106,14 +106,14 @@ Semua migrasi bersifat **aditif** (menambah tabel/kolom), tidak menghapus data.
 | 3 ✅ | CMS berita penuh: Supabase Storage untuk gambar, rich-text editor dengan sanitasi HTML, kategori/tag, alur draf → menunggu persetujuan → terjadwal/terbit → arsip, riwayat revisi, peran Editor & Admin Website | XSS dari rich-text (wajib sanitasi di server); migrasi peran harus kompatibel dengan akun lama |
 | 4 ✅ | Profil sekolah (hero, logo, kontak, media sosial), halaman profil via CMS, program unggulan, galeri dengan konfirmasi izin foto, prestasi (saring tingkat/tahun), kalender kegiatan publik/internal, pengumuman publik. Lihat `docs/PANDUAN_MENGELOLA_HALAMAN.md` | Ukuran unggahan & kuota Storage; izin publikasi foto siswa tetap tanggung jawab penerbit |
 | 5 ✅ | Peran Petugas Administrasi; tahun ajaran/semester (satu aktif); impor jadwal CSV/XLSX dengan pratinjau, laporan per baris, deteksi duplikat & bentrok, tanpa menimpa data lama, dan pembatalan per impor; arsip SK PDF (bucket privat, wajib konfirmasi pemeriksaan); perpustakaan digital. Lihat `docs/PANDUAN_ADMINISTRASI_SEKOLAH.md` | Parsing XLSX di server (dibatasi 2 MB/2.000 baris, hanya staf); SK & PDF tetap harus diperiksa manusia |
-| **RR** | **Ruang Rasa** (lihat bagian 9): menunggu keputusan kebijakan sekolah | Data sangat sensitif (anak, kekerasan); salah desain berdampak serius |
+| **RR ✅** | **Ruang Rasa** (lihat bagian 9 dan `docs/PANDUAN_RUANG_RASA.md`): pelaporan anonim dengan kode + PIN, isi terenkripsi, hanya Guru BK yang ditugaskan, log akses, retensi otomatis, email singkat tanpa isi | Data sangat sensitif (anak, kekerasan); kunci enkripsi harus dijaga; prosedur darurat & teks persetujuan masih harus ditulis sekolah |
 | 6 ✅ | Panduan database (peta tabel, relasi, migrasi, kueri aman, prosedur standar) & operasional admin (rutinitas, checklist tahun ajaran, insiden); halaman Status Sistem & Log Aktivitas; log perubahan konten otomatis. Lihat `docs/README.md` | Prosedur manual tetap bergantung pada disiplin petugas; dicatat di buku log |
 | 7 ✅ | Skrip backup/pulih database & Storage terenkripsi dengan pengaman produksi dan uji otomatis; CSP dengan nonce; tes keamanan statis & hak akses database; smoke test pasca-deploy. Lihat `docs/PANDUAN_BACKUP_PEMULIHAN.md`, `docs/AUDIT_KEAMANAN.md` | Backup **belum diuji pada Supabase sungguhan**; uji pemulihan pertama wajib setelah proyek dibuat |
-| 8 ✅ | Panduan deployment Hostinger + checklist go-live, `/api/health`, pemeriksaan konfigurasi saat start, penjadwal cron (GitHub Actions), dokumen serah terima, README final. Lihat `docs/PANDUAN_DEPLOYMENT_HOSTINGER.md`, `docs/SERAH_TERIMA.md` | Pemasangan sungguhan menunggu paket Hostinger (Business/Cloud) & proyek Supabase produksi | ✅ Galeri (izin publikasi wajib) & prestasi |
+| 8 ✅ | Panduan deployment Hostinger + checklist go-live, `/api/health`, pemeriksaan konfigurasi saat start, penjadwal cron (GitHub Actions), dokumen serah terima, README final. Lihat `docs/PANDUAN_DEPLOYMENT_HOSTINGER.md`, `docs/SERAH_TERIMA.md` | Pemasangan sungguhan menunggu paket Hostinger (Business/Cloud) & proyek Supabase produksi |
 
-## 9. Ruang Rasa: keputusan yang dibutuhkan sebelum dibangun
+## 9. Ruang Rasa: usulan desain & keputusan sekolah
 
-Usulan desain aman (untuk disetujui atau diubah):
+Usulan desain aman awal (kini diimplementasikan; lihat keputusan sekolah di bawah):
 
 - Formulir laporan **tanpa login**; pelapor boleh anonim. Tidak menyimpan IP mentah
   (hanya hash berkunci untuk rate limit).
@@ -129,3 +129,15 @@ Usulan desain aman (untuk disetujui atau diubah):
 Yang perlu ditentukan sekolah: siapa saja petugas yang boleh membaca, masa retensi,
 kanal notifikasi (email saja atau WhatsApp dan penyedianya), prosedur darurat (misalnya
 nomor kontak bila ada ancaman keselamatan), dan teks persetujuan untuk siswa di bawah umur.
+
+**Keputusan sekolah (14 Oktober 2026) yang diterapkan:**
+
+| Hal | Keputusan |
+|-----|-----------|
+| Siapa membaca | Hanya Guru BK yang ditugaskan Super Admin (Super Admin, Admin Website, dan staf lain tidak dapat membaca) |
+| Masa simpan | 12 bulan setelah laporan selesai, lalu dihapus otomatis (dapat diubah 3–60 bulan oleh Super Admin) |
+| Notifikasi | Tanda di dashboard BK + email singkat **tanpa isi laporan** |
+| Pelapor | Boleh anonim; kode referensi + PIN untuk melihat balasan |
+
+**Masih harus ditulis/diputuskan sekolah:** prosedur darurat resmi (kolom "catatan prosedur darurat" di Admin → Ruang Rasa), teks persetujuan orang tua bila diperlukan, dan siapa Guru BK yang ditugaskan.
+

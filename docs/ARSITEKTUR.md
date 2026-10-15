@@ -57,12 +57,15 @@ hanya lewat Supabase Dashboard (lihat `docs/PANDUAN_DATABASE.md`).
 | Konten situs | `site_profile`, `site_pages`, `school_programs`, `gallery_albums`, `gallery_photos`, `achievements`, `calendar_events`; Storage bucket `site-media` | `src/app/{profil,galeri,prestasi,kalender,pengumuman}`, `src/app/admin/{profil-sekolah,halaman,program,galeri,prestasi,kalender}`, `src/app/admin/konten/actions.ts`, `src/lib/content` |
 | Administrasi sekolah | `academic_years`, `semesters`, `schedule_import_batches`, `decrees`, `library_items`; kolom `schedule_entries.semester_id/import_batch_id`; Storage bucket **privat** `documents` | `src/app/admin/{tahun-ajaran,jadwal,arsip-sk,perpustakaan}`, `src/app/admin/sekolah/actions.ts`, `src/app/{dokumen,perpustakaan}`, `src/lib/school` |
 | Dashboard internal | `announcements`, `announcement_reads`, `schedule_entries`, `assignments` | `src/app/dashboard`, `src/app/admin/pengumuman`, `src/app/admin/jadwal` |
+| Ruang Rasa | `rasa_reports`, `rasa_messages`, `rasa_handlers`, `rasa_access_log` (tanpa hak tabel untuk peran mana pun; akses hanya lewat fungsi `rasa_*`); kolom `app_settings.rasa_*`. Isi dienkripsi AES-256-GCM di aplikasi | `src/app/ruang-rasa`, `src/app/dashboard/bk/ruang-rasa`, `src/app/admin/ruang-rasa`, `src/lib/rasa`, `src/components/rasa` |
 | Pengaturan | `app_settings` | `src/app/admin/pengaturan` |
 | Operasional | `admin_audit_log` (+ trigger `audit_content_change`), fungsi `admin_system_status()`, `school_purge_stale()` | `src/app/admin/status`, `src/app/admin/log`, `src/lib/ops` |
 
 Prinsip isolasi: modul buletin hanya membaca berita **publik yang terbit**; tidak ada
-relasi antara tabel buletin dan pengumuman/jadwal/tugas. Modul Ruang Rasa (belum ada)
-wajib terisolasi dengan cara yang sama.
+relasi antara tabel buletin dan pengumuman/jadwal/tugas. Modul Ruang Rasa terisolasi
+lebih ketat: tabelnya tidak dapat dibaca langsung oleh anon/authenticated, hanya modul
+`lib/rasa` yang boleh menyentuhnya, dan tes statis (`tests/security-static.test.ts`)
+menggagalkan CI bila ada modul lain (buletin, berita, galeri, dst.) yang merujuknya.
 
 ## Struktur folder
 
@@ -80,6 +83,6 @@ docs/           dokumentasi (indeks: docs/README.md)
 
 ## Hal yang belum ada
 
-Ruang Rasa (menunggu kebijakan sekolah). Pemasangan produksi (Supabase & Hostinger) belum
-dilakukan; panduannya di `docs/PANDUAN_DEPLOYMENT_HOSTINGER.md`. Lihat juga
+Pemasangan produksi (Supabase & Hostinger) belum
+dilakukan; Ruang Rasa belum diuji dengan layanan sungguhan (`docs/PANDUAN_RUANG_RASA.md`); panduannya di `docs/PANDUAN_DEPLOYMENT_HOSTINGER.md`. Lihat juga
 `docs/SERAH_TERIMA.md`.

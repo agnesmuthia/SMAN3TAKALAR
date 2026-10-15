@@ -204,6 +204,20 @@ export default async function HomePage() {
         </section>
       )}
 
+      <section className="mx-auto max-w-6xl px-4 pb-6" aria-labelledby="judul-rasa">
+        <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-teal-700 to-navy-900 p-8 text-white shadow-lg sm:p-10">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-gold-400">Ruang aman</p>
+          <h2 id="judul-rasa" className="mt-2 text-2xl font-extrabold sm:text-3xl">Ruang Rasa</h2>
+          <p className="mt-3 max-w-2xl text-slate-100">
+            Mengalami atau melihat perundungan? Ceritakan dengan aman, boleh tanpa nama. Hanya Guru BK yang ditugaskan yang membacanya.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link href="/ruang-rasa" className="btn-gold">Tulis laporan</Link>
+            <Link href="/ruang-rasa/cek" className="btn-ghost-light">Cek balasan</Link>
+          </div>
+        </div>
+      </section>
+
       <section className="mx-auto grid max-w-6xl gap-6 px-4 lg:grid-cols-2" aria-label="Layanan">
         <div className="card relative overflow-hidden !p-8">
           <span aria-hidden className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-teal-50" />

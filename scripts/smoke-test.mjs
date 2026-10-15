@@ -10,9 +10,9 @@ if (!/^https?:\/\//.test(base)) {
   process.exit(2);
 }
 
-const PUBLIC = ["/", "/berita", "/profil", "/pengumuman", "/galeri", "/prestasi", "/kalender", "/perpustakaan", "/dokumen",
+const PUBLIC = ["/", "/ruang-rasa", "/ruang-rasa/cek", "/berita", "/profil", "/pengumuman", "/galeri", "/prestasi", "/kalender", "/perpustakaan", "/dokumen",
   "/masuk", "/daftar", "/lupa-password", "/kebijakan-privasi"];
-const PRIVATE = ["/admin", "/admin/status", "/admin/log", "/admin/berita", "/admin/arsip-sk", "/admin/jadwal/impor", "/dashboard", "/dashboard/siswa", "/akun"];
+const PRIVATE = ["/admin", "/admin/status", "/admin/log", "/admin/berita", "/admin/arsip-sk", "/admin/jadwal/impor", "/dashboard", "/dashboard/siswa", "/dashboard/bk/ruang-rasa", "/admin/ruang-rasa", "/akun"];
 
 const results = [];
 const check = (name, ok, detail = "") => results.push({ name, ok, detail });

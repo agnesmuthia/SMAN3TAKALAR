@@ -7,7 +7,7 @@
 | *(tanpa peran, pending)* | Otomatis untuk setiap akun baru (email atau Google) | Halaman publik, `/akun` |
 | Siswa | Mengajukan verifikasi → disetujui admin | `/dashboard/siswa`, berita internal |
 | Guru | Mengajukan verifikasi → disetujui admin | `/dashboard/guru`, berita internal |
-| Guru BK | **Hanya** ditetapkan admin di `/admin/pengguna` | `/dashboard/bk` |
+| Guru BK | **Hanya** ditetapkan admin di `/admin/pengguna` | `/dashboard/bk`; laporan Ruang Rasa hanya bila ditugaskan |
 | Admin | **Hanya** ditetapkan admin lain (atau bootstrap SQL pertama) | `/admin/*` |
 
 Aturan yang ditegakkan di database (bukan hanya di tampilan):
@@ -68,7 +68,7 @@ setelah impor. Tabel ini hanya dapat dibaca admin (RLS).
 |-------|---------|-----|
 | Siswa | `/dashboard/siswa`, `/jadwal`, `/tugas` | Jadwal kelasnya, tugas & materi **terbit** untuk kelasnya, pengumuman |
 | Guru | `/dashboard/guru`, `/jadwal`, `/tugas` | Jadwal mengajarnya, kelola tugas & materi **miliknya**, pengumuman |
-| Guru BK | `/dashboard/bk` | Kerangka + pengumuman. **Belum ada data konseling.** |
+| Guru BK | `/dashboard/bk`, `/dashboard/bk/ruang-rasa` | Ringkasan, pengumuman, dan (bila ditugaskan) laporan Ruang Rasa. Belum ada modul konseling lain |
 | Semua anggota aktif | `/dashboard/pengumuman` | Pengumuman yang ditujukan ke perannya, penanda sudah dibaca |
 | Admin | `/admin/pengguna` | Kelola kelas siswa |
 | Admin & Petugas Administrasi | `/admin/tahun-ajaran`, `/admin/jadwal`, `/admin/arsip-sk` | Semester aktif, jadwal & impor, arsip SK |
@@ -86,8 +86,9 @@ Catatan operasional:
 - Seluruh pembatasan baca/tulis ditegakkan oleh RLS (lihat `supabase/migrations/20261015000100_dashboard_peran.sql`
   dan `supabase/tests/11_dashboard.sql`).
 
-## Modul yang belum dibangun
+## Ruang Rasa (petugas)
 
-Ruang Rasa (pelaporan/konseling) belum dibuat pada tahap ini. Saat
-dibangun, datanya wajib berada di tabel terpisah dengan RLS ketat dan **tidak boleh**
-dirujuk oleh modul berita, buletin, atau analitik apa pun.
+Guru BK **tidak otomatis** dapat membaca laporan Ruang Rasa. Super Admin menugaskan akun
+Guru BK aktif di **Admin → Ruang Rasa**; hanya akun yang ditugaskan yang dapat membuka
+laporan (dashboard BK → Ruang Rasa). Super Admin, Admin Website, Editor, dan Petugas
+Administrasi tidak punya jalur membaca isi laporan. Detail: `PANDUAN_RUANG_RASA.md`.

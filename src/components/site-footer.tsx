@@ -11,6 +11,7 @@ const EXPLORE = [
   { href: "/galeri", label: "Galeri" },
   { href: "/prestasi", label: "Prestasi" },
   { href: "/kalender", label: "Kalender kegiatan" },
+  { href: "/ruang-rasa", label: "Ruang Rasa (lapor perundungan)" },
   { href: "/perpustakaan", label: "Perpustakaan digital" },
   { href: "/dokumen", label: "Arsip SK" },
 ];

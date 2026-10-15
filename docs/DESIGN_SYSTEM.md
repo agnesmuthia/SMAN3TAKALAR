@@ -38,7 +38,8 @@ dashboard ikut berubah tanpa diedit satu per satu.
 ## Prinsip
 
 - **Tidak ada data atau foto palsu.** Bagian beranda (program, prestasi, galeri, kalender,
-  Ruang Rasa) baru tampil setelah modulnya ada dan berisi data nyata.
+  Ruang Rasa) baru tampil setelah modulnya ada dan berisi data nyata. Pita Ruang Rasa di
+  beranda memang selalu tampil: berisi ajakan melapor, bukan data.
 - **Animasi ringan** (fade-in hero, angkat kartu) dan otomatis dimatikan bila pengguna
   memilih *reduce motion*.
 - **Responsif**: diuji di 390 px (ponsel), 820 px (tablet), 1440 px (desktop) tanpa

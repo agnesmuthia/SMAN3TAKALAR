@@ -1,6 +1,7 @@
 // Pemeriksaan konfigurasi environment untuk halaman Status Sistem.
 // HANYA melaporkan ada/tidak & format; nilai rahasia tidak pernah dikembalikan.
 import { resolveEmailProvider } from "@/lib/newsletter/provider";
+import { parseKey } from "@/lib/rasa/crypto";
 
 export type ConfigCheck = {
   key: string;
@@ -73,6 +74,15 @@ export function checkConfig(env: Env): ConfigCheck[] {
       required: false,
       ok: present(webhook) && webhook.startsWith("whsec_"),
       note: !present(webhook) ? "Belum diisi: email terpental tidak tercatat otomatis." : webhook.startsWith("whsec_") ? "Terisi." : "Format harus diawali whsec_.",
+    },
+    {
+      key: "RASA_ENCRYPTION_KEY",
+      label: "Kunci enkripsi Ruang Rasa",
+      required: false,
+      ok: parseKey(env.RASA_ENCRYPTION_KEY) !== null,
+      note: parseKey(env.RASA_ENCRYPTION_KEY)
+        ? "Terisi (simpan salinannya di pengelola sandi, terpisah dari backup)."
+        : "Belum diisi atau bukan 32 byte base64: Ruang Rasa tidak menerima laporan.",
     },
     {
       key: "CRON_SECRET",
