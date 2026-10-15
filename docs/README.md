@@ -8,6 +8,7 @@ masih perlu dikonfigurasi, dan keputusan yang ditunggu dari sekolah.
 
 | Dokumen | Untuk | Isi |
 |---------|-------|-----|
+| [PANDUAN_UJI_GRATIS.md](PANDUAN_UJI_GRATIS.md) | Siapa saja yang ingin mencoba | Mencoba semua fitur tanpa biaya (Supabase gratis + Codespaces/lokal), admin pertama, daftar fitur yang dicoba |
 | [PANDUAN_OPERASIONAL_ADMIN.md](PANDUAN_OPERASIONAL_ADMIN.md) | Semua pengelola | Pembagian tugas, rutinitas harian–semesteran, checklist awal/akhir tahun ajaran, insiden, eskalasi |
 | [PANDUAN_ADMIN_WEBSITE.md](PANDUAN_ADMIN_WEBSITE.md) | Semua pengelola | Alamat dashboard, masuk/keluar, peran & kewenangan, tidak bisa masuk |
 | [PANDUAN_MENGELOLA_BERITA.md](PANDUAN_MENGELOLA_BERITA.md) | Editor, Admin Website | Menulis, menyetujui, menjadwalkan, mengarsipkan berita |
